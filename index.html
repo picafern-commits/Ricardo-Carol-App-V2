@@ -1,25 +1,13 @@
-<!DOCTYPE html><html lang="pt">
+<!DOCTYPE html>
+<html lang="pt">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ricardo&Carol</title>
 <link rel="manifest" href="manifest.json">
 <style>
-body{
-  font-family:-apple-system,BlinkMacSystemFont;
-  background:#1c1c1e;
-  color:white;
-  margin:0;
-  padding:18px;
-}
-.container{
-  max-width:540px;
-  margin:auto;
-  background:#2c2c2e;
-  border-radius:20px;
-  padding:22px;
-  box-shadow:0 10px 28px rgba(0,0,0,0.35);
-}
+body{font-family:-apple-system,BlinkMacSystemFont;background:#1c1c1e;color:white;margin:0;padding:18px;}
+.container{max-width:540px;margin:auto;background:#2c2c2e;border-radius:20px;padding:22px;box-shadow:0 10px 28px rgba(0,0,0,0.35);}
 h1{text-align:center;margin-bottom:14px}
 input,select{width:100%;padding:10px;margin:5px 0;border-radius:10px;border:none;font-size:14px;background:#3a3a3c;color:white}
 input::placeholder{color:#aaa}
@@ -36,16 +24,34 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
 .total{font-size:17px;font-weight:bold;margin-top:10px}
 .history{font-size:12px;color:#bbb}
 </style>
-</head><body>
-<div class="container"><h1>🛒 Ricardo&Carol</h1><div id="login">
-  <h3>Entrar com Google</h3>
-  <button onclick="loginGoogle()">Entrar com Google</button>
-</div><div id="app" style="display:none">  <div class="tabs">
+</head>
+ 
+<body>
+<div class="container">
+ 
+<h1>🛒 Ricardo&Carol</h1>
+ 
+<!-- LOGIN -->
+<div id="login">
+  <h3>Login ou Criar Conta</h3>
+  <input id="email" type="email" placeholder="Email">
+  <input id="pass" type="password" placeholder="Senha">
+  <button onclick="login()">Entrar</button>
+  <button onclick="signup()">Criar Conta</button>
+</div>
+ 
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="tabs">
     <div class="tab active" data-cat="Supermercado" onclick="switchTab(event)">Supermercado</div>
     <div class="tab" data-cat="Casa" onclick="switchTab(event)">Casa</div>
     <div class="tab" data-cat="Farmácia" onclick="switchTab(event)">Farmácia</div>
     <div class="tab" data-cat="Outros" onclick="switchTab(event)">Outros</div>
-  </div>  <input id="search" placeholder="Pesquisar..." onkeyup="render()">  <h3>Adicionar Produto</h3>
+  </div>
+ 
+  <input id="search" placeholder="Pesquisar..." onkeyup="render()">
+ 
+  <h3>Adicionar Produto</h3>
   <input id="name" placeholder="Produto">
   <div class="row">
     <input id="qty" class="qty" type="number" placeholder="Qtd" min="1">
@@ -56,18 +62,34 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
     <option>Casa</option>
     <option>Farmácia</option>
     <option>Outros</option>
-  </select><button onclick="addItem()">Adicionar</button>
-<button onclick="scanBarcode()">📷 Ler código de barras</button>
+  </select>
+ 
+  <button onclick="addItem()">Adicionar</button>
+  <button onclick="scanBarcode()">📷 Ler código de barras</button>
  
   <h3>Lista</h3>
   <ul id="list"></ul>
   <div class="total" id="total"></div>
-  <button class="red" onclick="clearList()">Limpar lista</button>  <h3>Histórico</h3>
-  <ul id="history"></ul>
-  <button class="red" onclick="clearHistory()">Apagar Histórico</button><button onclick="logout()">Sair</button>
+  <button class="red" onclick="clearList()">Limpar lista</button>
  
-</div><!-- Firebase --><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script><script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script><!-- Quagga para scanner de código de barras --><script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script><script>
-// ===== FIREBASE CONFIG (coloca os teus valores aqui) =====
+  <h3>Histórico</h3>
+  <ul id="history"></ul>
+  <button class="red" onclick="clearHistory()">Apagar Histórico</button>
+ 
+  <button onclick="logout()">Sair</button>
+</div>
+ 
+<!-- ================= FIREBASE ================= -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+ 
+<!-- ================= SCANNER ================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+ 
+<!-- ================= SCRIPT PRINCIPAL ================= -->
+<script>
+// ====== CONFIGURAÇÃO DO FIREBASE ======
 const firebaseConfig = {
   apiKey: "SUA_API_KEY",
   authDomain: "SEU_PROJETO.firebaseapp.com",
@@ -80,32 +102,44 @@ firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
  
-// ===== LOGIN via GOOGLE =====
-function loginGoogle(){
-  const provider = new firebase.auth.GoogleAuthProvider();
-  auth.signInWithPopup(provider).then(() => showApp());
+// ====== LOGIN / CRIAR CONTA ======
+function login() {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("pass").value;
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(() => showApp())
+    .catch(error => alert(error.message));
 }
  
-// ===== LOGOUT =====
-function logout(){
-  auth.signOut();
-  document.getElementById("app").style.display="none";
-  document.getElementById("login").style.display="block";
+function signup() {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("pass").value;
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(() => showApp())
+    .catch(error => alert(error.message));
 }
  
-// ===== SHOW APP =====
+function logout() {
+  auth.signOut().then(() => {
+    document.getElementById("login").style.display="block";
+    document.getElementById("app").style.display="none";
+  });
+}
+ 
+function showApp() {
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
+  render();
+}
+ 
 auth.onAuthStateChanged(user => {
-  if(user){
-    document.getElementById("login").style.display="none";
-    document.getElementById("app").style.display="block";
-    render();
-  }
+  if(user) showApp();
 });
  
-// ===== FIRESTORE OPERATIONS =====
+// ====== FIRESTORE ======
 let currentTab = "Supermercado";
  
-function addItem(){
+function addItem() {
   const user = auth.currentUser;
   if(!user) return;
   const name = document.getElementById("name").value;
@@ -114,10 +148,13 @@ function addItem(){
   const category = document.getElementById("category").value;
   if(!name) return;
   db.collection("users").doc(user.uid).collection("items").add({name,qty,price,category});
+  document.getElementById("name").value="";
+  document.getElementById("qty").value="";
+  document.getElementById("price").value="";
   render();
 }
  
-function toggle(id,item){
+function toggle(id,item) {
   const user = auth.currentUser;
   if(!user) return;
   db.collection("users").doc(user.uid).collection("items").doc(id).delete();
@@ -187,7 +224,7 @@ function render(){
     });
 }
  
-// ===== TABS =====
+// ====== TABS ======
 function switchTab(e){
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   e.target.classList.add("active");
@@ -195,7 +232,7 @@ function switchTab(e){
   render();
 }
  
-// ===== BARCODE SCANNER =====
+// ====== SCANNER ======
 function scanBarcode(){
   Quagga.init({
     inputStream: {type:"LiveStream", constraints:{facingMode:"environment"}},
@@ -209,5 +246,259 @@ function scanBarcode(){
     Quagga.stop();
   });
 }
-</script></body>
+</script>
+</body>
 </html>
+ 
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ricardo&Carol</title>
+<link rel="manifest" href="manifest.json">
+<style>
+body{font-family:-apple-system,BlinkMacSystemFont;background:#1c1c1e;color:white;margin:0;padding:18px;}
+.container{max-width:540px;margin:auto;background:#2c2c2e;border-radius:20px;padding:22px;box-shadow:0 10px 28px rgba(0,0,0,0.35);}
+h1{text-align:center;margin-bottom:14px}
+input,select{width:100%;padding:10px;margin:5px 0;border-radius:10px;border:none;font-size:14px;background:#3a3a3c;color:white}
+input::placeholder{color:#aaa}
+button{width:100%;padding:10px;border:none;border-radius:10px;background:#0a84ff;color:white;font-size:14px;margin-top:7px}
+button.red{background:#ff453a}
+.row{display:flex;gap:8px}
+.qty,.price{width:80px}
+ul{list-style:none;padding:0;margin:8px 0}
+li{display:flex;justify-content:space-between;align-items:center;padding:9px;border-bottom:1px solid #444}
+.tabs{display:flex;justify-content:space-around;margin-bottom:10px}
+.tab{padding:8px 15px;border-radius:10px;background:#3a3a3c;cursor:pointer}
+.tab.active{background:#0a84ff}
+.price{font-size:12px;color:#ccc}
+.total{font-size:17px;font-weight:bold;margin-top:10px}
+.history{font-size:12px;color:#bbb}
+</style>
+</head>
+ 
+<body>
+<div class="container">
+ 
+<h1>🛒 Ricardo&Carol</h1>
+ 
+<!-- LOGIN -->
+<div id="login">
+  <h3>Login ou Criar Conta</h3>
+  <input id="email" type="email" placeholder="Email">
+  <input id="pass" type="password" placeholder="Senha">
+  <button onclick="login()">Entrar</button>
+  <button onclick="signup()">Criar Conta</button>
+</div>
+ 
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="tabs">
+    <div class="tab active" data-cat="Supermercado" onclick="switchTab(event)">Supermercado</div>
+    <div class="tab" data-cat="Casa" onclick="switchTab(event)">Casa</div>
+    <div class="tab" data-cat="Farmácia" onclick="switchTab(event)">Farmácia</div>
+    <div class="tab" data-cat="Outros" onclick="switchTab(event)">Outros</div>
+  </div>
+ 
+  <input id="search" placeholder="Pesquisar..." onkeyup="render()">
+ 
+  <h3>Adicionar Produto</h3>
+  <input id="name" placeholder="Produto">
+  <div class="row">
+    <input id="qty" class="qty" type="number" placeholder="Qtd" min="1">
+    <input id="price" class="price" type="number" placeholder="Preço €" min="0" step="0.01">
+  </div>
+  <select id="category">
+    <option>Supermercado</option>
+    <option>Casa</option>
+    <option>Farmácia</option>
+    <option>Outros</option>
+  </select>
+ 
+  <button onclick="addItem()">Adicionar</button>
+  <button onclick="scanBarcode()">📷 Ler código de barras</button>
+ 
+  <h3>Lista</h3>
+  <ul id="list"></ul>
+  <div class="total" id="total"></div>
+  <button class="red" onclick="clearList()">Limpar lista</button>
+ 
+  <h3>Histórico</h3>
+  <ul id="history"></ul>
+  <button class="red" onclick="clearHistory()">Apagar Histórico</button>
+ 
+  <button onclick="logout()">Sair</button>
+</div>
+ 
+<!-- ================= FIREBASE ================= -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+ 
+<!-- ================= SCANNER ================= -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
+ 
+<!-- ================= SCRIPT PRINCIPAL ================= -->
+<script>
+// ====== CONFIGURAÇÃO DO FIREBASE ======
+const firebaseConfig = {
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_PROJETO.firebaseapp.com",
+  projectId: "SEU_PROJETO",
+  storageBucket: "SEU_PROJETO.appspot.com",
+  messagingSenderId: "SEU_ID",
+  appId: "SEU_APP_ID"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+ 
+// ====== LOGIN / CRIAR CONTA ======
+function login() {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("pass").value;
+  auth.signInWithEmailAndPassword(email, pass)
+    .then(() => showApp())
+    .catch(error => alert(error.message));
+}
+ 
+function signup() {
+  const email = document.getElementById("email").value;
+  const pass = document.getElementById("pass").value;
+  auth.createUserWithEmailAndPassword(email, pass)
+    .then(() => showApp())
+    .catch(error => alert(error.message));
+}
+ 
+function logout() {
+  auth.signOut().then(() => {
+    document.getElementById("login").style.display="block";
+    document.getElementById("app").style.display="none";
+  });
+}
+ 
+function showApp() {
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
+  render();
+}
+ 
+auth.onAuthStateChanged(user => {
+  if(user) showApp();
+});
+ 
+// ====== FIRESTORE ======
+let currentTab = "Supermercado";
+ 
+function addItem() {
+  const user = auth.currentUser;
+  if(!user) return;
+  const name = document.getElementById("name").value;
+  const qty = parseInt(document.getElementById("qty").value) || 1;
+  const price = parseFloat(document.getElementById("price").value) || 0;
+  const category = document.getElementById("category").value;
+  if(!name) return;
+  db.collection("users").doc(user.uid).collection("items").add({name,qty,price,category});
+  document.getElementById("name").value="";
+  document.getElementById("qty").value="";
+  document.getElementById("price").value="";
+  render();
+}
+ 
+function toggle(id,item) {
+  const user = auth.currentUser;
+  if(!user) return;
+  db.collection("users").doc(user.uid).collection("items").doc(id).delete();
+  db.collection("users").doc(user.uid).collection("history").add({...item,date:new Date().toLocaleDateString()});
+  render();
+}
+ 
+function removeItem(id){
+  const user = auth.currentUser;
+  if(!user) return;
+  db.collection("users").doc(user.uid).collection("items").doc(id).delete().then(render);
+}
+ 
+function clearList(){
+  const user = auth.currentUser;
+  if(!user) return;
+  db.collection("users").doc(user.uid).collection("items").get()
+    .then(snap => snap.forEach(d=>d.ref.delete())).then(render);
+}
+ 
+function clearHistory(){
+  const user = auth.currentUser;
+  if(!user) return;
+  db.collection("users").doc(user.uid).collection("history").get()
+    .then(snap => snap.forEach(d=>d.ref.delete())).then(render);
+}
+ 
+function render(){
+  const user = auth.currentUser;
+  if(!user) return;
+  const listEl = document.getElementById("list");
+  const histEl = document.getElementById("history");
+  const totalEl = document.getElementById("total");
+  const search = document.getElementById("search").value.toLowerCase();
+  listEl.innerHTML=""; histEl.innerHTML="";
+  let total=0;
+ 
+  db.collection("users").doc(user.uid).collection("items")
+    .where("category","==",currentTab).get()
+    .then(snap => {
+      snap.forEach(doc => {
+        const item = doc.data(); total+=item.qty*item.price;
+        if(item.name.toLowerCase().includes(search)){
+          const li=document.createElement("li");
+          li.innerHTML=`
+            <div>
+              <input type="checkbox" onchange='toggle("${doc.id}",${JSON.stringify(item)})'>
+              ${item.qty}x ${item.name} <div class="price">${item.category} • €${item.price}</div>
+            </div>
+            <button onclick='removeItem("${doc.id}")'>❌</button>
+          `;
+          listEl.appendChild(li);
+        }
+      });
+      totalEl.innerText="Total estimado: €"+total.toFixed(2);
+    });
+ 
+  db.collection("users").doc(user.uid).collection("history")
+    .where("category","==",currentTab).get()
+    .then(snap => {
+      snap.forEach(doc => {
+        const item = doc.data();
+        const li=document.createElement("li");
+        li.innerText=`${item.qty}x ${item.name} - ${item.date}`;
+        histEl.appendChild(li);
+      });
+    });
+}
+ 
+// ====== TABS ======
+function switchTab(e){
+  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
+  e.target.classList.add("active");
+  currentTab=e.target.dataset.cat;
+  render();
+}
+ 
+// ====== SCANNER ======
+function scanBarcode(){
+  Quagga.init({
+    inputStream: {type:"LiveStream", constraints:{facingMode:"environment"}},
+    decoder: {readers:["ean_reader","ean_8_reader","code_128_reader"]}
+  },err=>{
+    if(err) return alert("Não foi possível iniciar scanner");
+    Quagga.start();
+  });
+  Quagga.onDetected(data=>{
+    alert("Código detectado: "+data.codeResult.code);
+    Quagga.stop();
+  });
+}
+</script>
+</body>
+</html>
+ 
