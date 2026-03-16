@@ -3,46 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Ricardo&Carol</title>
-<style>
-body{margin:0;font-family:-apple-system;background:#121212;color:white;}
-.container{max-width:520px;margin:auto;padding:15px;}
-.card{background:#1e1e1e;border-radius:16px;padding:16px;margin-bottom:15px;transition:all 0.3s;}
-button{padding:14px;border:none;border-radius:10px;background:#0a84ff;color:white;font-size:16px;width:100%;margin-top:8px;cursor:pointer;transition:all 0.2s;}
-button:hover{background:#0f9fff;}
-input{width:100%;padding:12px;margin-top:6px;border:none;border-radius:10px;background:#2c2c2e;color:white;}
-ul{list-style:none;padding:0;}
-li{background:#2c2c2e;padding:12px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;transition:all 0.3s;}
-.small{font-size:13px;color:#aaa;}
-.total{margin-top:10px;font-weight:bold;text-align:right;}
-.flex{display:flex;gap:5px;align-items:center;}
-.flex input{width:60px;}
-.quick-buttons{display:flex;gap:5px;margin-bottom:10px;flex-wrap:wrap;}
-.quick-buttons button{width:auto;flex:1 1 30%;}
-</style>
+<title>Lista - Ricardo&Carol</title>
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 <body>
 <div class="container">
- 
 <h2>🛒 Ricardo&Carol</h2>
- 
-<!-- LOGIN -->
-<div id="login" class="card">
-<h3>Escolhe o teu nome:</h3>
-<input id="username" placeholder="Nome do utilizador">
-<button onclick="login()">Entrar</button>
-</div>
- 
-<!-- APP -->
-<div id="app" style="display:none">
  
 <!-- Produtos rápidos -->
 <div class="card quick-buttons">
-<button onclick="quickAdd('Leite')">Leite</button>
-<button onclick="quickAdd('Pão')">Pão</button>
-<button onclick="quickAdd('Ovos')">Ovos</button>
-<button onclick="quickAdd('Arroz')">Arroz</button>
-<button onclick="quickAdd('Massa')">Massa</button>
+<button onclick="quickAdd('Leite')"><i class="fas fa-cow"></i> Leite</button>
+<button onclick="quickAdd('Pão')"><i class="fas fa-bread-slice"></i> Pão</button>
+<button onclick="quickAdd('Ovos')"><i class="fas fa-egg"></i> Ovos</button>
+<button onclick="quickAdd('Arroz')"><i class="fas fa-seedling"></i> Arroz</button>
+<button onclick="quickAdd('Massa')"><i class="fas fa-utensils"></i> Massa</button>
 </div>
  
 <!-- Adicionar manualmente -->
@@ -52,7 +27,7 @@ li{background:#2c2c2e;padding:12px;border-radius:10px;margin-bottom:8px;display:
 <input id="price" type="number" placeholder="Preço">
 <button onclick="addItem()">Adicionar</button>
 <button style="background:#ff3b30" onclick="clearList()">Apagar Lista</button>
-<button onclick="goHistory()">Histórico</button>
+<button style="background:#ff9500" onclick="goHistory()">Histórico</button>
 </div>
  
 <div class="card">
@@ -60,74 +35,58 @@ li{background:#2c2c2e;padding:12px;border-radius:10px;margin-bottom:8px;display:
 <ul id="list"></ul>
 <div class="total" id="total"></div>
 </div>
- 
-</div>
 </div>
  
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+<script src="firebaseConfig.js"></script>
 <script>
-// CONFIGURAÇÃO FIREBASE
-const firebaseConfig = {
-apiKey:"AIzaSyCqOp8DRQQI4JZSzOnX_4yl3TrhxT4m6S0",
-authDomain:"ricardo-carol-app.firebaseapp.com",
-projectId:"ricardo-carol-app"
-};
-firebase.initializeApp(firebaseConfig);
-const db=firebase.firestore();
- 
-// LOGIN
+// USER
 let user = localStorage.getItem("user");
+if(!user){ alert("Escolhe um utilizador"); window.location.href="login.html"; }
  
-function login(){
-  const name=document.getElementById("username").value.trim();
-  if(!name) return alert("Escreve o teu nome");
-  user=name;
-  localStorage.setItem("user",user);
-  document.getElementById("login").style.display="none";
-  document.getElementById("app").style.display="block";
-  startRealtime();
-}
+// FIRESTORE REFS
+const itemsRef = db.collection("ricardoCarolApp").doc("lista").collection("items");
+const historyRef = db.collection("ricardoCarolApp").doc("lista").collection("history");
  
-if(user){
-  document.getElementById("login").style.display="none";
-  document.getElementById("app").style.display="block";
-  startRealtime();
-}
- 
-// FUNÇÕES LISTA
+// FUNÇÕES
 function addItem(nameManual){
-  const name=nameManual || document.getElementById("name").value.trim();
-  const qty=parseInt(document.getElementById("qty").value)||1;
-  const price=parseFloat(document.getElementById("price").value)||0;
+  const name = nameManual || document.getElementById("name").value.trim();
+  const qty = parseInt(document.getElementById("qty").value)||1;
+  const price = parseFloat(document.getElementById("price").value)||0;
   if(!name) return;
-  db.collection("ricardoCarolApp").doc("lista").collection("items").add({name,qty,price,addedBy:user,date:new Date()});
-  if(!nameManual){document.getElementById("name").value="";document.getElementById("qty").value="";document.getElementById("price").value="";}
+  itemsRef.add({name, qty, price, addedBy:user, date:new Date()});
+  if(!nameManual){ document.getElementById("name").value=""; document.getElementById("qty").value=""; document.getElementById("price").value=""; }
 }
-function quickAdd(name){addItem(name);}
-function clearList(){if(!confirm("Apagar toda a lista?")) return; db.collection("ricardoCarolApp").doc("lista").collection("items").get().then(snap=>{snap.forEach(doc=>doc.ref.delete());});}
-function goHistory(){window.location.href="history.html";}
+function quickAdd(name){ addItem(name); }
+function clearList(){ if(confirm("Apagar toda a lista?")){ itemsRef.get().then(s=>{s.forEach(d=>d.ref.delete());}); } }
+function goHistory(){ window.location.href="history.html"; }
  
-// SINCRONIZAÇÃO TEMPO REAL
-function startRealtime(){
-  db.collection("ricardoCarolApp").doc("lista").collection("items").onSnapshot(snap=>{
-    const list=document.getElementById("list");
-    list.innerHTML="";
-    let total=0;
-    snap.forEach(doc=>{
-      const item=doc.data();
-      total+=item.qty*item.price;
-      const li=document.createElement("li");
-      li.innerHTML=`<div class="flex"><input type="checkbox" onclick="buyItem('${doc.id}')"><strong>${item.qty}x ${item.name}</strong></div>
-      <div class="flex"><input type="number" value="${item.price}" onchange="editPrice('${doc.id}',this.value)"><div class="small">${item.addedBy}</div></div>`;
-      list.appendChild(li);
-    });
-    document.getElementById("total").innerText="Total: €"+total.toFixed(2);
+// TEMPO REAL
+itemsRef.onSnapshot(snap=>{
+  const list = document.getElementById("list");
+  list.innerHTML="";
+  let total=0;
+  snap.forEach(doc=>{
+    const item = doc.data();
+    total += item.qty*item.price;
+    const li = document.createElement("li");
+    const colorClass="user-color-"+item.addedBy.replace(/ /g,"");
+    li.innerHTML=`<div class="flex"><input type="checkbox" onclick="buyItem('${doc.id}')"><strong>${item.qty}x ${item.name}</strong></div>
+    <div class="flex"><input type="number" value="${item.price}" onchange="editPrice('${doc.id}',this.value)"><div class="small ${colorClass}">${item.addedBy}</div></div>`;
+    list.appendChild(li);
+  });
+  document.getElementById("total").innerText="Total: €"+total.toFixed(2);
+});
+ 
+function buyItem(id){
+  itemsRef.doc(id).get().then(doc=>{
+    const item = doc.data();
+    historyRef.add(item);
+    itemsRef.doc(id).delete();
   });
 }
- 
-function buyItem(id){const ref=db.collection("ricardoCarolApp").doc("lista").collection("items").doc(id);ref.get().then(doc=>{const item=doc.data();db.collection("ricardoCarolApp").doc("lista").collection("history").add(item);ref.delete();});}
-function editPrice(id,newPrice){db.collection("ricardoCarolApp").doc("lista").collection("items").doc(id).update({price:parseFloat(newPrice)||0});}
+function editPrice(id,newPrice){ itemsRef.doc(id).update({price:parseFloat(newPrice)||0}); }
 </script>
 </body>
 </html>
