@@ -10,9 +10,10 @@
 <div class="container">
 <h2>📜 Histórico</h2>
 
-<!-- Botão para apagar todo o histórico -->
+<!-- Botões de gerenciamento do histórico -->
 <div class="card">
   <button onclick="clearHistory()" style="background:#ff3b30;">Apagar Histórico</button>
+  <button onclick="resetHistory()" style="background:#ff3b30; margin-top:5px;">Resetar Histórico</button>
   <button onclick="backToList()" style="background:#ff9500; margin-top:5px;">Voltar à Lista</button>
 </div>
 
@@ -23,25 +24,29 @@
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="firebaseConfig.js"></script>
 <script>
-// Pede sempre para escolher o user
+// Login obrigatório
 let user = sessionStorage.getItem("user");
 if(!user){ window.location.href="login.html"; }
 
 const historyRef = db.collection("ricardoCarolApp").doc("lista").collection("history");
 
-// Volta para a lista
+// Funções
 function backToList(){ window.location.href="index.html"; }
 
-// Apaga todo o histórico
 function clearHistory(){
-  if(confirm("Tem certeza que quer apagar todo o histórico?")) {
-    historyRef.get().then(snapshot => {
-      snapshot.forEach(doc => doc.ref.delete());
-    });
+  if(confirm("Tem certeza que quer apagar todo o histórico?")){
+    historyRef.get().then(snapshot => { snapshot.forEach(doc => doc.ref.delete()); });
   }
 }
 
-// Carrega o histórico agrupado por dia
+function resetHistory(){
+  if(confirm("Tem certeza que quer resetar todo o histórico? Esta ação não pode ser desfeita.")){
+    historyRef.get().then(snapshot=>{ snapshot.forEach(doc => doc.ref.delete()); });
+    alert("Histórico resetado!");
+  }
+}
+
+// Carrega histórico agrupado por dia
 function loadHistory(){
   historyRef.orderBy("date","desc").onSnapshot(snap=>{
     const container=document.getElementById("historyContainer");
@@ -64,7 +69,7 @@ function loadHistory(){
         sum += i.price*i.qty;
         const colorClass="user-color-"+i.addedBy.replace(/ /g,"");
         html+=`<li class="flex">
-          <span class="${colorClass}">${i.name} (${i.addedBy})</span>
+          <span class="${colorClass}">${i.name} (${i.addedBy}) [${i.store}]</span>
           <input type="number" value="${i.qty}" onchange="editHistoryQty('${i.id}',this.value)">
           <input type="number" value="${i.price}" step="0.01" onchange="editHistoryPrice('${i.id}',this.value)">
         </li>`;
@@ -75,7 +80,6 @@ function loadHistory(){
   });
 }
 
-// Edição de quantidade e preço no histórico
 function editHistoryQty(id,newQty){ historyRef.doc(id).update({qty:parseInt(newQty)||1}); }
 function editHistoryPrice(id,newPrice){ historyRef.doc(id).update({price:parseFloat(newPrice)||0}); }
 
