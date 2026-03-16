@@ -4,45 +4,70 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Histórico - Ricardo&Carol</title>
-<link rel="stylesheet" href="style.css">
+<style>
+body{margin:0;font-family:-apple-system;background:#121212;color:white;}
+.container{max-width:520px;margin:auto;padding:15px;}
+.card{background:#1e1e1e;border-radius:16px;padding:16px;margin-bottom:15px;transition:all 0.3s;}
+input{width:60px;padding:6px;border:none;border-radius:8px;background:#2c2c2e;color:white;margin-right:5px;}
+button{padding:12px;border:none;border-radius:10px;background:#0a84ff;color:white;font-size:16px;width:100%;margin-top:8px;cursor:pointer;transition:all 0.2s;}
+button:hover{background:#0f9fff;}
+ul{list-style:none;padding:0;}
+li{background:#2c2c2e;padding:10px;border-radius:10px;margin-bottom:8px;display:flex;justify-content:space-between;align-items:center;}
+.small{font-size:13px;color:#aaa;}
+.flex{display:flex;align-items:center;gap:5px;}
+.total{margin-top:10px;font-weight:bold;text-align:right;}
+</style>
 </head>
 <body>
 <div class="container">
-<h2>📜 Histórico</h2>
+ 
+<h2>📜 Histórico - Ricardo&Carol</h2>
  
 <div class="card">
-<h3>Adicionar item ao histórico</h3>
+<h3>Adicionar Item ao Histórico</h3>
 <input id="hName" placeholder="Produto">
 <input id="hQty" type="number" placeholder="Quantidade">
 <input id="hPrice" type="number" placeholder="Preço">
-<button onclick="addHistoryItem()">Adicionar</button>
+<button onclick="addHistoryItem()">Adicionar ao Histórico</button>
 <button onclick="backToList()" style="background:#ff9500;">Voltar à Lista</button>
 </div>
  
 <div id="historyContainer"></div>
+ 
 </div>
  
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="firebaseConfig.js"></script>
 <script>
+// CONFIGURAÇÃO FIREBASE
+const firebaseConfig = {
+  apiKey:"XXXX",
+  authDomain:"XXXX.firebaseapp.com",
+  projectId:"XXXX"
+};
+firebase.initializeApp(firebaseConfig);
+const db=firebase.firestore();
+ 
+// USER GUARDADO
 let user = localStorage.getItem("user");
-if(!user){ alert("Escolhe um utilizador"); window.location.href="login.html"; }
+if(!user){alert("Escolhe o teu nome na lista primeiro");window.location.href="index.html";}
  
-const historyRef = db.collection("ricardoCarolApp").doc("lista").collection("history");
+// FUNÇÃO VOLTAR
+function backToList(){window.location.href="index.html";}
  
-function backToList(){ window.location.href="index.html"; }
+// ADICIONAR ITEM AO HISTÓRICO
 function addHistoryItem(){
   const name=document.getElementById("hName").value.trim();
   const qty=parseInt(document.getElementById("hQty").value)||1;
   const price=parseFloat(document.getElementById("hPrice").value)||0;
   if(!name) return;
-  historyRef.add({name, qty, price, addedBy:user, date:new Date()});
+  db.collection("ricardoCarolApp").doc("lista").collection("history").add({name,qty,price,addedBy:user,date:new Date()});
   document.getElementById("hName").value=""; document.getElementById("hQty").value=""; document.getElementById("hPrice").value="";
 }
  
+// RECARREGAR HISTÓRICO EM TEMPO REAL
 function loadHistory(){
-  historyRef.orderBy("date","desc").onSnapshot(snap=>{
+  db.collection("ricardoCarolApp").doc("lista").collection("history").orderBy("date","desc").onSnapshot(snap=>{
     const container=document.getElementById("historyContainer");
     container.innerHTML="";
     let grouped={};
@@ -53,12 +78,12 @@ function loadHistory(){
       grouped[day].push({id:doc.id,...item});
     });
     for(const day in grouped){
-      let sum=0;
       let html=`<div class="card"><strong>${day}</strong><ul>`;
+      let sum=0;
       grouped[day].forEach(i=>{
         sum+=i.price*i.qty;
-        const colorClass="user-color-"+i.addedBy.replace(/ /g,"");
-        html+=`<li class="flex"><span class="${colorClass}">${i.name} (${i.addedBy})</span>
+        html+=`<li class="flex">
+        <span>${i.name} (${i.addedBy})</span>
         <input type="number" value="${i.qty}" onchange="editHistoryQty('${i.id}',this.value)">
         <input type="number" value="${i.price}" step="0.01" onchange="editHistoryPrice('${i.id}',this.value)">
         </li>`;
@@ -68,9 +93,18 @@ function loadHistory(){
     }
   });
 }
-function editHistoryQty(id,newQty){ historyRef.doc(id).update({qty:parseInt(newQty)||1}); }
-function editHistoryPrice(id,newPrice){ historyRef.doc(id).update({price:parseFloat(newPrice)||0}); }
  
+// EDITAR QUANTIDADE
+function editHistoryQty(id,newQty){
+  db.collection("ricardoCarolApp").doc("lista").collection("history").doc(id).update({qty:parseInt(newQty)||1});
+}
+ 
+// EDITAR PREÇO
+function editHistoryPrice(id,newPrice){
+  db.collection("ricardoCarolApp").doc("lista").collection("history").doc(id).update({price:parseFloat(newPrice)||0});
+}
+ 
+// CARREGAR AO INICIAR
 loadHistory();
 </script>
 </body>

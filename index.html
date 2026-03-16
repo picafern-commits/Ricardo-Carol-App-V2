@@ -3,23 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Histórico - Ricardo&Carol</title>
+<title>Lista - Ricardo&Carol</title>
 <link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 <body>
 <div class="container">
-<h2>📜 Histórico</h2>
+<h2>🛒 Ricardo&Carol</h2>
  
-<div class="card">
-<h3>Adicionar item ao histórico</h3>
-<input id="hName" placeholder="Produto">
-<input id="hQty" type="number" placeholder="Quantidade">
-<input id="hPrice" type="number" placeholder="Preço">
-<button onclick="addHistoryItem()">Adicionar</button>
-<button onclick="backToList()" style="background:#ff9500;">Voltar à Lista</button>
+<div class="card quick-buttons">
+  <button onclick="quickAdd('Leite')"><i class="fas fa-cow"></i> Leite</button>
+  <button onclick="quickAdd('Pão')"><i class="fas fa-bread-slice"></i> Pão</button>
+  <button onclick="quickAdd('Ovos')"><i class="fas fa-egg"></i> Ovos</button>
+  <button onclick="quickAdd('Arroz')"><i class="fas fa-seedling"></i> Arroz</button>
+  <button onclick="quickAdd('Massa')"><i class="fas fa-utensils"></i> Massa</button>
 </div>
  
-<div id="historyContainer"></div>
+<div class="card">
+  <input id="name" placeholder="Produto">
+  <input id="qty" type="number" placeholder="Quantidade">
+  <input id="price" type="number" placeholder="Preço">
+  <button onclick="addItem()">Adicionar</button>
+  <button style="background:#ff3b30" onclick="clearList()">Apagar Lista</button>
+  <button style="background:#ff9500" onclick="goHistory()">Histórico</button>
+</div>
+ 
+<div class="card">
+  <h3>Lista</h3>
+  <ul id="list"></ul>
+  <div class="total" id="total"></div>
+</div>
 </div>
  
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -27,51 +40,46 @@
 <script src="firebaseConfig.js"></script>
 <script>
 let user = localStorage.getItem("user");
-if(!user){ alert("Escolhe um utilizador"); window.location.href="login.html"; }
+if(!user){ window.location.href="login.html"; }
  
+const itemsRef = db.collection("ricardoCarolApp").doc("lista").collection("items");
 const historyRef = db.collection("ricardoCarolApp").doc("lista").collection("history");
  
-function backToList(){ window.location.href="index.html"; }
-function addHistoryItem(){
-  const name=document.getElementById("hName").value.trim();
-  const qty=parseInt(document.getElementById("hQty").value)||1;
-  const price=parseFloat(document.getElementById("hPrice").value)||0;
+function addItem(nameManual){
+  const name = nameManual||document.getElementById("name").value.trim();
+  const qty = parseInt(document.getElementById("qty").value)||1;
+  const price = parseFloat(document.getElementById("price").value)||0;
   if(!name) return;
-  historyRef.add({name, qty, price, addedBy:user, date:new Date()});
-  document.getElementById("hName").value=""; document.getElementById("hQty").value=""; document.getElementById("hPrice").value="";
+  itemsRef.add({name,qty,price,addedBy:user,date:new Date()});
+  if(!nameManual){ document.getElementById("name").value=""; document.getElementById("qty").value=""; document.getElementById("price").value=""; }
 }
+function quickAdd(name){ addItem(name); }
+function clearList(){ if(confirm("Apagar toda a lista?")){ itemsRef.get().then(s=>s.forEach(d=>d.ref.delete())); } }
+function goHistory(){ window.location.href="history.html"; }
  
-function loadHistory(){
-  historyRef.orderBy("date","desc").onSnapshot(snap=>{
-    const container=document.getElementById("historyContainer");
-    container.innerHTML="";
-    let grouped={};
-    snap.forEach(doc=>{
-      const item=doc.data();
-      const day=item.date.toDate().toLocaleDateString();
-      if(!grouped[day]) grouped[day]=[];
-      grouped[day].push({id:doc.id,...item});
-    });
-    for(const day in grouped){
-      let sum=0;
-      let html=`<div class="card"><strong>${day}</strong><ul>`;
-      grouped[day].forEach(i=>{
-        sum+=i.price*i.qty;
-        const colorClass="user-color-"+i.addedBy.replace(/ /g,"");
-        html+=`<li class="flex"><span class="${colorClass}">${i.name} (${i.addedBy})</span>
-        <input type="number" value="${i.qty}" onchange="editHistoryQty('${i.id}',this.value)">
-        <input type="number" value="${i.price}" step="0.01" onchange="editHistoryPrice('${i.id}',this.value)">
-        </li>`;
-      });
-      html+=`</ul><div class="total">Total: €${sum.toFixed(2)}</div></div>`;
-      container.innerHTML+=html;
-    }
+itemsRef.onSnapshot(snap=>{
+  const list=document.getElementById("list");
+  list.innerHTML="";
+  let total=0;
+  snap.forEach(doc=>{
+    const item=doc.data();
+    total+=item.qty*item.price;
+    const li=document.createElement("li");
+    const colorClass="user-color-"+item.addedBy.replace(/ /g,"");
+    li.innerHTML=`<div class="flex"><input type="checkbox" onclick="buyItem('${doc.id}')"><strong>${item.qty}x ${item.name}</strong></div>
+    <div class="flex"><input type="number" value="${item.price}" onchange="editPrice('${doc.id}',this.value)"><div class="small ${colorClass}">${item.addedBy}</div></div>`;
+    list.appendChild(li);
+  });
+  document.getElementById("total").innerText="Total: €"+total.toFixed(2);
+});
+ 
+function buyItem(id){
+  itemsRef.doc(id).get().then(doc=>{
+    historyRef.add(doc.data());
+    itemsRef.doc(id).delete();
   });
 }
-function editHistoryQty(id,newQty){ historyRef.doc(id).update({qty:parseInt(newQty)||1}); }
-function editHistoryPrice(id,newPrice){ historyRef.doc(id).update({price:parseFloat(newPrice)||0}); }
- 
-loadHistory();
+function editPrice(id,newPrice){ itemsRef.doc(id).update({price:parseFloat(newPrice)||0}); }
 </script>
 </body>
 </html>
