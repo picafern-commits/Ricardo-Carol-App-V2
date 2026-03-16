@@ -5,12 +5,13 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Lista - Ricardo&Carol</title>
 <link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
 </head>
 <body>
 <div class="container">
 <h2>🛒 Ricardo&Carol</h2>
- 
+
 <div class="card quick-buttons">
   <button onclick="quickAdd('Leite')"><i class="fas fa-cow"></i> Leite</button>
   <button onclick="quickAdd('Pão')"><i class="fas fa-bread-slice"></i> Pão</button>
@@ -18,7 +19,7 @@
   <button onclick="quickAdd('Arroz')"><i class="fas fa-seedling"></i> Arroz</button>
   <button onclick="quickAdd('Massa')"><i class="fas fa-utensils"></i> Massa</button>
 </div>
- 
+
 <div class="card">
   <input id="name" placeholder="Produto">
   <input id="qty" type="number" placeholder="Quantidade">
@@ -27,24 +28,24 @@
   <button style="background:#ff3b30" onclick="clearList()">Apagar Lista</button>
   <button style="background:#ff9500" onclick="goHistory()">Histórico</button>
 </div>
- 
+
 <div class="card">
   <h3>Lista</h3>
   <ul id="list"></ul>
   <div class="total" id="total"></div>
 </div>
 </div>
- 
+
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <script src="firebaseConfig.js"></script>
 <script>
-let user = localStorage.getItem("user");
+let user = sessionStorage.getItem("user");
 if(!user){ window.location.href="login.html"; }
- 
+
 const itemsRef = db.collection("ricardoCarolApp").doc("lista").collection("items");
 const historyRef = db.collection("ricardoCarolApp").doc("lista").collection("history");
- 
+
 function addItem(nameManual){
   const name = nameManual||document.getElementById("name").value.trim();
   const qty = parseInt(document.getElementById("qty").value)||1;
@@ -56,7 +57,7 @@ function addItem(nameManual){
 function quickAdd(name){ addItem(name); }
 function clearList(){ if(confirm("Apagar toda a lista?")){ itemsRef.get().then(s=>s.forEach(d=>d.ref.delete())); } }
 function goHistory(){ window.location.href="history.html"; }
- 
+
 itemsRef.onSnapshot(snap=>{
   const list=document.getElementById("list");
   list.innerHTML="";
@@ -72,10 +73,11 @@ itemsRef.onSnapshot(snap=>{
   });
   document.getElementById("total").innerText="Total: €"+total.toFixed(2);
 });
- 
+
 function buyItem(id){
   itemsRef.doc(id).get().then(doc=>{
-    historyRef.add(doc.data());
+    const itemData = doc.data();
+    historyRef.add({name:itemData.name,qty:itemData.qty,price:itemData.price,addedBy:itemData.addedBy,date:new Date()});
     itemsRef.doc(id).delete();
   });
 }
