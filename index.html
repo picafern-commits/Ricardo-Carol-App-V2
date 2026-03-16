@@ -4,65 +4,69 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Ricardo&Carol</title>
-<link rel="manifest" href="manifest.json">
 <style>
 html,body{margin:0;padding:0;width:100%;height:100%;overflow-x:hidden;-webkit-text-size-adjust:none;}
-body{font-family:-apple-system,BlinkMacSystemFont;background:#1c1c1e;color:white;padding:18px;touch-action: manipulation;}
-.container{max-width:540px;margin:auto;background:#2c2c2e;border-radius:20px;padding:22px;box-shadow:0 10px 28px rgba(0,0,0,0.35);}
-h1{text-align:center;margin-bottom:14px}
-input{width:100%;padding:10px;margin:5px 0;border-radius:10px;border:none;font-size:14px;background:#3a3a3c;color:white}
+body{font-family:-apple-system,BlinkMacSystemFont;background:#1c1c1e;color:white;padding:10px;touch-action: manipulation;}
+.container{max-width:540px;margin:auto;background:#2c2c2e;border-radius:20px;padding:20px;box-shadow:0 10px 28px rgba(0,0,0,0.35);}
+h1{text-align:center;margin-bottom:10px}
+input,select{width:100%;padding:10px;margin:5px 0;border-radius:10px;border:none;font-size:14px;background:#3a3a3c;color:white}
 input::placeholder{color:#aaa}
 button{width:100%;padding:10px;border:none;border-radius:10px;background:#0a84ff;color:white;font-size:14px;margin-top:7px}
 button.red{background:#ff453a}
 .row{display:flex;gap:8px}
 .qty,.price{width:80px}
 ul{list-style:none;padding:0;margin:8px 0}
-li{display:flex;justify-content:space-between;align-items:center;padding:9px;border-bottom:1px solid #444}
-.price{font-size:12px;color:#ccc}
+li{display:flex;justify-content:space-between;align-items:center;padding:9px;border-bottom:1px solid #444;flex-wrap:wrap;}
+li div{flex:1}
+.price{font-size:13px;color:#ccc}
 .total{font-size:17px;font-weight:bold;margin-top:10px}
-.history{font-size:12px;color:#bbb}
+.history{font-size:14px;color:#ddd;margin-top:10px}
+.history-day{margin-top:15px;border-top:1px solid #555;padding-top:5px;}
+.history-day h4{margin:0 0 5px 0;color:#0a84ff;}
 </style>
 </head>
 <body>
 <div class="container">
- 
 <h1>🛒 Ricardo&Carol</h1>
  
-<!-- LOGIN -->
 <div id="login">
   <h3>Qual é o teu nome?</h3>
   <input id="username" placeholder="Escreve o teu nome">
   <button onclick="login()">Entrar</button>
 </div>
  
-<!-- APP PRINCIPAL -->
 <div id="app" style="display:none">
-  <input id="search" placeholder="Pesquisar..." onkeyup="render()">
  
-  <h3>Adicionar Produto</h3>
-  <input id="name" placeholder="Produto">
-  <div class="row">
-    <input id="qty" class="qty" type="number" placeholder="Qtd" min="1">
-    <input id="price" class="price" type="number" placeholder="Preço €" min="0" step="0.01">
-  </div>
-  <button onclick="addItem()">Adicionar</button>
+<h3>Seleciona o tipo de lista</h3>
+<select id="tipo" onchange="render()">
+  <option value="casa">Casa</option>
+  <option value="pessoal">Pessoal</option>
+</select>
  
-  <h3>Lista</h3>
-  <ul id="list"></ul>
-  <div class="total" id="total"></div>
-  <button class="red" onclick="clearList()">Limpar lista</button>
+<input id="search" placeholder="Pesquisar..." onkeyup="render()">
  
-  <h3>Histórico</h3>
-  <ul id="history"></ul>
-  <button class="red" onclick="clearHistory()">Apagar Histórico</button>
+<h3>Adicionar Produto</h3>
+<input id="name" placeholder="Produto">
+<div class="row">
+  <input id="qty" class="qty" type="number" placeholder="Qtd" min="1">
+  <input id="price" class="price" type="number" placeholder="Preço €" min="0" step="0.01">
+</div>
+<button onclick="addItem()">Adicionar</button>
  
-  <button onclick="logout()">Sair</button>
+<h3>Lista</h3>
+<ul id="list"></ul>
+<div class="total" id="total"></div>
+<button class="red" onclick="clearList()">Limpar lista</button>
+ 
+<h3>Histórico</h3>
+<div id="history"></div>
+<button class="red" onclick="clearHistory()">Apagar Histórico</button>
+ 
+<button onclick="logout()">Sair</button>
 </div>
  
-<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
- 
 <script>
 // FIREBASE CONFIG
 const firebaseConfig = {
@@ -76,116 +80,136 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
  
-// LOGIN COM PERSISTÊNCIA LOCAL E FIRESTORE
+// LOGIN PERSISTENTE
 let user = localStorage.getItem("user") || "";
+let tipo = "casa";
  
 function login() {
   const uname = document.getElementById("username").value.trim();
-  if (!uname) { alert("Escreve o teu nome"); return; }
- 
+  if(!uname){ alert("Escreve o teu nome"); return; }
   user = uname;
   localStorage.setItem("user", user);
- 
   const userDoc = db.collection("users").doc(user);
   userDoc.get().then(docSnap => {
-    if (!docSnap.exists) {
-      userDoc.set({ createdAt: new Date().toISOString() });
-    }
-    document.getElementById("login").style.display = "none";
-    document.getElementById("app").style.display = "block";
+    if(!docSnap.exists){ userDoc.set({createdAt:new Date().toISOString()}); }
+    document.getElementById("login").style.display="none";
+    document.getElementById("app").style.display="block";
     startRealtimeListeners();
   });
 }
  
 function logout() {
   localStorage.removeItem("user");
-  user = "";
-  document.getElementById("login").style.display = "block";
-  document.getElementById("app").style.display = "none";
+  user="";
+  document.getElementById("login").style.display="block";
+  document.getElementById("app").style.display="none";
   if(itemsListener) itemsListener();
   if(historyListener) historyListener();
 }
  
-// --- LISTA COMPARTILHADA EM TEMPO REAL ---
+// --- LISTA COMPARTILHADA ---
 let itemsListener;
 let historyListener;
  
-function startRealtimeListeners() {
+function startRealtimeListeners(){
   if(!user) return;
  
-  itemsListener = db.collection("sharedItems").onSnapshot(snapshot => {
-    const listEl = document.getElementById("list");
-    const totalEl = document.getElementById("total");
-    const search = document.getElementById("search").value.toLowerCase();
-    listEl.innerHTML = "";
-    let total = 0;
- 
-    snapshot.forEach(doc => {
-      const item = doc.data();
-      if(item.name.toLowerCase().includes(search)){
-        total += item.qty * item.price;
-        const li = document.createElement("li");
-        li.innerHTML = `<div>
-            <input type="checkbox" onchange='toggle("${doc.id}",${JSON.stringify(item)})'>
-            ${item.qty}x ${item.name} <div class="price">Adicionado por: ${item.addedBy} • €${item.price}</div>
-          </div>
-          <button onclick='removeItem("${doc.id}")'>❌</button>`;
-        listEl.appendChild(li);
-      }
-    });
-    totalEl.innerText = "Total estimado: €" + total.toFixed(2);
+  itemsListener = db.collection("sharedItems").doc(tipo).collection("itens").onSnapshot(snapshot=>{
+    renderList(snapshot);
   });
  
-  historyListener = db.collection("sharedHistory").onSnapshot(snapshot => {
-    const histEl = document.getElementById("history");
-    histEl.innerHTML = "";
-    snapshot.forEach(doc => {
-      const item = doc.data();
-      const li = document.createElement("li");
-      li.innerText = `${item.qty}x ${item.name} - ${item.addedBy || "?"} - ${item.date}`;
-      histEl.appendChild(li);
-    });
+  historyListener = db.collection("sharedHistory").doc(tipo).collection("historico").onSnapshot(snapshot=>{
+    renderHistory(snapshot);
   });
 }
  
+function renderList(snapshot){
+  const listEl=document.getElementById("list");
+  const totalEl=document.getElementById("total");
+  const search=document.getElementById("search").value.toLowerCase();
+  listEl.innerHTML="";
+  let total=0;
+  snapshot.forEach(doc=>{
+    const item=doc.data();
+    if(item.name.toLowerCase().includes(search)){
+      total+=item.qty*item.price;
+      const li=document.createElement("li");
+      li.innerHTML=`<div>
+        <input type="checkbox" onchange='toggle("${doc.id}",${JSON.stringify(item)})'>
+        <strong>${item.qty}x ${item.name}</strong>
+        <div class="price">Adicionado por: ${item.addedBy} • €${item.price.toFixed(2)}</div>
+      </div>
+      <button onclick='removeItem("${doc.id}")'>❌</button>`;
+      listEl.appendChild(li);
+    }
+  });
+  totalEl.innerText="Total estimado: €"+total.toFixed(2);
+}
+ 
+function renderHistory(snapshot){
+  const histEl=document.getElementById("history");
+  histEl.innerHTML="";
+  const dias = {};
+  snapshot.forEach(doc=>{
+    const item=doc.data();
+    const date = item.date || new Date().toLocaleDateString();
+    if(!dias[date]) dias[date]=[];
+    dias[date].push(item);
+  });
+  // Render por dia
+  for(const dia of Object.keys(dias).sort((a,b)=>new Date(b)-new Date(a))){
+    const dayDiv=document.createElement("div");
+    dayDiv.className="history-day";
+    const totalDia = dias[dia].reduce((s,i)=>s+i.qty*i.price,0);
+    dayDiv.innerHTML=`<h4>${dia} - Total: €${totalDia.toFixed(2)}</h4>`;
+    dias[dia].forEach(item=>{
+      const li=document.createElement("li");
+      li.innerHTML=`<strong>${item.qty}x ${item.name}</strong> - ${item.addedBy} • €${item.price.toFixed(2)}`;
+      dayDiv.appendChild(li);
+    });
+    histEl.appendChild(dayDiv);
+  }
+}
+ 
+document.getElementById("tipo").addEventListener("change", ()=>{
+  tipo=document.getElementById("tipo").value;
+  if(itemsListener) itemsListener();
+  if(historyListener) historyListener();
+  startRealtimeListeners();
+});
+ 
 // ADICIONAR ITEM
-function addItem() {
+function addItem(){
   if(!user) return;
-  const name = document.getElementById("name").value;
-  const qty = parseInt(document.getElementById("qty").value) || 1;
-  const price = parseFloat(document.getElementById("price").value) || 0;
+  const name=document.getElementById("name").value;
+  const qty=parseInt(document.getElementById("qty").value)||1;
+  const price=parseFloat(document.getElementById("price").value)||0;
   if(!name) return;
-  db.collection("sharedItems").add({name, qty, price, addedBy: user});
+  db.collection("sharedItems").doc(tipo).collection("itens").add({name,qty,price,addedBy:user});
   document.getElementById("name").value="";
   document.getElementById("qty").value="";
   document.getElementById("price").value="";
 }
  
 // TOGGLE CHECKED
-function toggle(id, item){
-  db.collection("sharedItems").doc(id).delete();
-  db.collection("sharedHistory").add({...item, date: new Date().toLocaleDateString()});
+function toggle(id,item){
+  db.collection("sharedItems").doc(tipo).collection("itens").doc(id).delete();
+  db.collection("sharedHistory").doc(tipo).collection("historico").add({...item,date:new Date().toLocaleDateString()});
 }
  
 // REMOVER ITEM
-function removeItem(id){
-  db.collection("sharedItems").doc(id).delete();
-}
+function removeItem(id){ db.collection("sharedItems").doc(tipo).collection("itens").doc(id).delete(); }
  
 // LIMPAR LISTA
-function clearList(){
-  db.collection("sharedItems").get().then(snap => snap.forEach(d => d.ref.delete()));
-}
+function clearList(){ db.collection("sharedItems").doc(tipo).collection("itens").get().then(snap=>snap.forEach(d=>d.ref.delete())); }
  
 // LIMPAR HISTÓRICO
-function clearHistory(){
-  db.collection("sharedHistory").get().then(snap => snap.forEach(d => d.ref.delete()));
-}
+function clearHistory(){ db.collection("sharedHistory").doc(tipo).collection("historico").get().then(snap=>snap.forEach(d=>d.ref.delete())); }
  
 // LOGIN AUTOMÁTICO
 if(user){
-  document.getElementById("login").style.display = "none";
-  document.getElementById("app").style.display = "block";
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
   startRealtimeListeners();
 }
 </script>
