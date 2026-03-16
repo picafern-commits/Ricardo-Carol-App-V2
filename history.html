@@ -12,8 +12,7 @@
 
 <!-- Botões de gerenciamento do histórico -->
 <div class="card">
-  <button onclick="clearHistory()" style="background:#ff3b30;">Apagar Histórico</button>
-  <button onclick="resetHistory()" style="background:#ff3b30; margin-top:5px;">Resetar Histórico</button>
+  <button onclick="resetHistory()" style="background:#ff3b30;">Apagar Histórico</button>
   <button onclick="backToList()" style="background:#ff9500; margin-top:5px;">Voltar à Lista</button>
 </div>
 
@@ -30,19 +29,16 @@ if(!user){ window.location.href="login.html"; }
 
 const historyRef = db.collection("ricardoCarolApp").doc("lista").collection("history");
 
-// Funções
+// Volta para a lista
 function backToList(){ window.location.href="index.html"; }
 
-function clearHistory(){
-  if(confirm("Tem certeza que quer apagar todo o histórico?")){
-    historyRef.get().then(snapshot => { snapshot.forEach(doc => doc.ref.delete()); });
-  }
-}
-
+// Apaga todo o histórico
 function resetHistory(){
-  if(confirm("Tem certeza que quer resetar todo o histórico? Esta ação não pode ser desfeita.")){
-    historyRef.get().then(snapshot=>{ snapshot.forEach(doc => doc.ref.delete()); });
-    alert("Histórico resetado!");
+  if(confirm("Tem certeza que quer apagar todo o histórico? Esta ação não pode ser desfeita.")){
+    historyRef.get().then(snapshot=>{
+      snapshot.forEach(doc => doc.ref.delete());
+    });
+    alert("Histórico apagado!");
   }
 }
 
@@ -80,6 +76,7 @@ function loadHistory(){
   });
 }
 
+// Edita quantidade e preço no histórico
 function editHistoryQty(id,newQty){ historyRef.doc(id).update({qty:parseInt(newQty)||1}); }
 function editHistoryPrice(id,newPrice){ historyRef.doc(id).update({price:parseFloat(newPrice)||0}); }
 
