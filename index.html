@@ -1,183 +1,267 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Ricardo&Carol</title>
-<style>
-html,body{margin:0;padding:0;width:100%;height:100%;overflow-x:hidden;-webkit-text-size-adjust:none;}
-body{font-family:-apple-system,BlinkMacSystemFont;background:#1c1c1e;color:white;padding:10px;touch-action: manipulation;}
-.container{max-width:540px;margin:auto;background:#2c2c2e;border-radius:20px;padding:20px;box-shadow:0 6px 18px rgba(0,0,0,0.4);}
-h1{text-align:center;margin-bottom:12px;font-size:22px;}
-input{width:100%;padding:10px;margin:5px 0;border-radius:12px;border:none;font-size:14px;background:#3a3a3c;color:white;box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);}
-input::placeholder{color:#aaa}
-button{width:100%;padding:12px;border:none;border-radius:12px;background:#0a84ff;color:white;font-size:14px;margin-top:7px;box-shadow: 0 3px 6px rgba(0,0,0,0.3);}
-button.red{background:#ff453a;}
-.row{display:flex;gap:8px;}
-.qty,.price{width:80px}
-ul{list-style:none;padding:0;margin:10px 0;}
-li{display:flex;justify-content:space-between;align-items:center;padding:10px;margin-bottom:6px;background:#3a3a3c;border-radius:12px;box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);flex-wrap:wrap;}
-li div{flex:1}
-.price{font-size:13px;color:#ccc;margin-top:4px;}
-.total{font-size:17px;font-weight:bold;margin-top:10px;text-align:right;}
-.history{font-size:14px;color:#ddd;margin-top:10px;}
-.history-day{margin-top:15px;padding:8px;border-top:1px solid #555;border-radius:10px;background:#2c2c2e;box-shadow: 0 2px 5px rgba(0,0,0,0.3);}
-.history-day h4{margin:0 0 6px 0;color:#0a84ff;font-size:16px;}
-</style>
-</head>
-<body>
-<div class="container">
-<h1>🛒 Ricardo&Carol</h1>
  
-<!-- LOGIN SIMPLES -->
-<div id="login">
-  <h3>Qual é o teu nome?</h3>
-  <input id="username" placeholder="Digite seu nome">
-  <button onclick="login()">Entrar</button>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+ 
+<title>Ricardo&Carol</title>
+ 
+<style>
+ 
+body{
+font-family:-apple-system;
+background:#121212;
+color:white;
+margin:0;
+padding:15px;
+}
+ 
+.container{
+max-width:520px;
+margin:auto;
+}
+ 
+.card{
+background:#1e1e1e;
+border-radius:16px;
+padding:16px;
+margin-bottom:15px;
+}
+ 
+button{
+width:100%;
+padding:14px;
+border:none;
+border-radius:10px;
+background:#0a84ff;
+color:white;
+font-size:16px;
+margin-top:8px;
+}
+ 
+input{
+width:100%;
+padding:12px;
+margin-top:6px;
+border:none;
+border-radius:10px;
+background:#2c2c2e;
+color:white;
+}
+ 
+ul{
+list-style:none;
+padding:0;
+}
+ 
+li{
+background:#2c2c2e;
+padding:12px;
+border-radius:10px;
+margin-bottom:8px;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+ 
+.small{
+font-size:13px;
+color:#aaa;
+}
+ 
+.total{
+margin-top:10px;
+font-weight:bold;
+text-align:right;
+}
+ 
+</style>
+ 
+</head>
+ 
+<body>
+ 
+<div class="container">
+ 
+<h2>🛒 Ricardo&Carol</h2>
+ 
+<div id="login" class="card">
+ 
+<h3>Quem está a usar?</h3>
+ 
+<button onclick="login('Ricardo')">Ricardo</button>
+<button onclick="login('Carol')">Carol</button>
+<button onclick="login('João')">João</button>
+<button onclick="login('Maria')">Maria</button>
+<button onclick="login('Pedro')">Pedro</button>
+ 
 </div>
  
-<!-- APP -->
 <div id="app" style="display:none">
  
-<h3>Adicionar Produto</h3>
+<div class="card">
+ 
 <input id="name" placeholder="Produto">
-<div class="row">
-  <input id="qty" class="qty" type="number" placeholder="Qtd" min="1">
-  <input id="price" class="price" type="number" placeholder="Preço €" min="0" step="0.01">
-</div>
+ 
+<input id="qty" type="number" placeholder="Quantidade">
+ 
+<input id="price" type="number" placeholder="Preço">
+ 
 <button onclick="addItem()">Adicionar</button>
  
-<h3>Lista</h3>
-<ul id="list"></ul>
-<div class="total" id="total"></div>
-<button class="red" onclick="clearList()">Limpar lista</button>
- 
-<h3>Histórico</h3>
-<div id="history"></div>
-<button class="red" onclick="clearHistory()">Apagar Histórico</button>
- 
-<button onclick="logout()">Sair</button>
 </div>
  
-<!-- FIREBASE -->
+<div class="card">
+ 
+<h3>Lista</h3>
+ 
+<ul id="list"></ul>
+ 
+<div class="total" id="total"></div>
+ 
+</div>
+ 
+<div class="card">
+ 
+<h3>Histórico</h3>
+ 
+<div id="history"></div>
+ 
+</div>
+ 
+</div>
+ 
+</div>
+ 
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
  
 <script>
-// FIREBASE CONFIG
+ 
+// COLOCAR CONFIG FIREBASE AQUI
+ 
 const firebaseConfig = {
-  apiKey: "AIzaSyDIC4TRTrPXegpctUMzHMp3wx5di7ziw3U",
-  authDomain: "ricardocarolapp.firebaseapp.com",
-  projectId: "ricardocarolapp",
-  storageBucket: "ricardocarolapp.firebasestorage.app",
-  messagingSenderId: "502898050812",
-  appId: "1:502898050812:web:d270e03827d11c101e3979"
+apiKey:"AIzaSyCqOp8DRQQI4JZSzOnX_4yl3TrhxT4m6S0",
+authDomain:"ricardo-carol-app.firebaseapp.com",
+projectId:"ricardo-carol-app"
 };
+ 
 firebase.initializeApp(firebaseConfig);
+ 
 const db = firebase.firestore();
  
-// LOGIN SIMPLES SEM AUTH
-let user = localStorage.getItem("user") || "";
+let user = localStorage.getItem("user");
  
-function login() {
-  const name = document.getElementById("username").value.trim();
-  if(!name) return alert("Digite um nome!");
-  user = name;
-  localStorage.setItem("user", user);
-  document.getElementById("login").style.display = "none";
-  document.getElementById("app").style.display = "block";
-  startRealtimeListeners();
+function login(name){
+ 
+user=name;
+ 
+localStorage.setItem("user",name);
+ 
+document.getElementById("login").style.display="none";
+document.getElementById("app").style.display="block";
+ 
+start();
+ 
 }
  
-function logout() {
-  localStorage.removeItem("user");
-  user = "";
-  document.getElementById("login").style.display = "block";
-  document.getElementById("app").style.display = "none";
-}
- 
-// Se usuário já estava logado
 if(user){
-  document.getElementById("login").style.display = "none";
-  document.getElementById("app").style.display = "block";
-  startRealtimeListeners();
+ 
+document.getElementById("login").style.display="none";
+document.getElementById("app").style.display="block";
+ 
+start();
+ 
 }
  
-// LISTA E HISTORICO
-let itemsListener;
-let historyListener;
- 
-function startRealtimeListeners(){
-  itemsListener = db.collection("sharedItems").collection("itens").onSnapshot(snap=>renderList(snap));
-  historyListener = db.collection("sharedHistory").collection("historico").onSnapshot(snap=>renderHistory(snap));
-}
- 
-function renderList(snapshot){
-  const listEl=document.getElementById("list");
-  const totalEl=document.getElementById("total");
-  listEl.innerHTML="";
-  let total=0;
-  snapshot.forEach(doc=>{
-    const item=doc.data();
-    total+=item.qty*item.price;
-    const li=document.createElement("li");
-    li.innerHTML=`<div>
-      <input type="checkbox" onchange='toggle("${doc.id}",${JSON.stringify(item)})'>
-      <strong>${item.qty}x ${item.name}</strong>
-      <div class="price">Adicionado por: ${item.addedBy} • €${item.price.toFixed(2)}</div>
-    </div>
-    <button onclick='removeItem("${doc.id}")'>❌</button>`;
-    listEl.appendChild(li);
-  });
-  totalEl.innerText="Total estimado: €"+total.toFixed(2);
-}
- 
-function renderHistory(snapshot){
-  const histEl=document.getElementById("history");
-  histEl.innerHTML="";
-  const dias = {};
-  snapshot.forEach(doc=>{
-    const item=doc.data();
-    const date = item.date || new Date().toLocaleDateString();
-    if(!dias[date]) dias[date]=[];
-    dias[date].push(item);
-  });
-  for(const dia of Object.keys(dias).sort((a,b)=>new Date(b)-new Date(a))){
-    const dayDiv=document.createElement("div");
-    dayDiv.className="history-day";
-    const totalDia = dias[dia].reduce((s,i)=>s.qty*i.price+s,0);
-    dayDiv.innerHTML=`<h4>${dia} - Total: €${totalDia.toFixed(2)}</h4>`;
-    dias[dia].forEach(item=>{
-      const li=document.createElement("li");
-      li.innerHTML=`<strong>${item.qty}x ${item.name}</strong> - ${item.addedBy} • €${item.price.toFixed(2)}`;
-      dayDiv.appendChild(li);
-    });
-    histEl.appendChild(dayDiv);
-  }
-}
- 
-// ADICIONAR ITEM
 function addItem(){
-  if(!user) return;
-  const name=document.getElementById("name").value;
-  const qty=parseInt(document.getElementById("qty").value)||1;
-  const price=parseFloat(document.getElementById("price").value)||0;
-  if(!name) return;
-  db.collection("sharedItems").collection("itens").add({name,qty,price,addedBy:user});
-  document.getElementById("name").value="";
-  document.getElementById("qty").value="";
-  document.getElementById("price").value="";
+ 
+const name=document.getElementById("name").value.trim();
+const qty=parseInt(document.getElementById("qty").value)||1;
+const price=parseFloat(document.getElementById("price").value)||0;
+ 
+if(!name) return;
+ 
+db.collection("ricardoCarolApp")
+.doc("lista")
+.collection("items")
+.add({
+name,
+qty,
+price,
+addedBy:user,
+date:new Date()
+});
+ 
+document.getElementById("name").value="";
+document.getElementById("qty").value="";
+document.getElementById("price").value="";
+ 
 }
  
-// TOGGLE CHECKED
-function toggle(id,item){
-  db.collection("sharedItems").collection("itens").doc(id).delete();
-  db.collection("sharedHistory").collection("historico").add({...item,date:new Date().toLocaleDateString()});
+function start(){
+ 
+db.collection("ricardoCarolApp")
+.doc("lista")
+.collection("items")
+.onSnapshot(snap=>{
+ 
+const list=document.getElementById("list");
+ 
+list.innerHTML="";
+ 
+let total=0;
+ 
+snap.forEach(doc=>{
+ 
+const item=doc.data();
+ 
+total+=item.qty*item.price;
+ 
+const li=document.createElement("li");
+ 
+li.innerHTML=`
+<div>
+<input type="checkbox" onclick="buyItem('${doc.id}')">
+<strong>${item.qty}x ${item.name}</strong>
+<div class="small">${item.addedBy} • €${item.price}</div>
+</div>
+`;
+ 
+list.appendChild(li);
+ 
+});
+ 
+document.getElementById("total").innerText="Total: €"+total.toFixed(2);
+ 
+});
+ 
 }
  
-function removeItem(id){ db.collection("sharedItems").collection("itens").doc(id).delete(); }
-function clearList(){ db.collection("sharedItems").collection("itens").get().then(snap=>snap.forEach(d=>d.ref.delete())); }
-function clearHistory(){ db.collection("sharedHistory").collection("historico").get().then(snap=>snap.forEach(d=>d.ref.delete())); }
+function buyItem(id){
+ 
+const ref=db.collection("ricardoCarolApp")
+.doc("lista")
+.collection("items")
+.doc(id);
+ 
+ref.get().then(doc=>{
+ 
+const item=doc.data();
+ 
+db.collection("ricardoCarolApp")
+.doc("lista")
+.collection("history")
+.add(item);
+ 
+ref.delete();
+ 
+});
+ 
+}
+ 
 </script>
+ 
 </body>
 </html>
