@@ -19,12 +19,13 @@
     <button onclick="login('Pedro')">Pedro</button>
   </div>
 </div>
+
 <script>
 function login(name){
-  localStorage.setItem("user", name);
+  sessionStorage.setItem("user", name); // só dura enquanto a sessão estiver aberta
   window.location.href="index.html";
 }
-if(localStorage.getItem("user")) window.location.href="index.html";
+
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-worker.js'); }
 </script>
 </body>
