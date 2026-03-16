@@ -6,14 +6,13 @@
 <title>Ricardo&Carol</title>
 <link rel="manifest" href="manifest.json">
 <style>
-html,body{margin:0;padding:0;width:100%;height:100%;overflow-x:hidden;-webkit-text-size-adjust:none;-ms-text-size-adjust:none;}
-body{font-family:-apple-system,BlinkMacSystemFont;background:#1c1c1e;color:white;padding:18px;touch-action: manipulation; overflow-x:hidden;}
+body{font-family:-apple-system,BlinkMacSystemFont;background:#1c1c1e;color:white;margin:0;padding:18px;touch-action: manipulation;}
 .container{max-width:540px;margin:auto;background:#2c2c2e;border-radius:20px;padding:22px;box-shadow:0 10px 28px rgba(0,0,0,0.35);}
 h1{text-align:center;margin-bottom:14px}
 input{width:100%;padding:10px;margin:5px 0;border-radius:10px;border:none;font-size:14px;background:#3a3a3c;color:white}
 input::placeholder{color:#aaa}
 button{width:100%;padding:10px;border:none;border-radius:10px;background:#0a84ff;color:white;font-size:14px;margin-top:7px}
-button.red{background:#ff3b30}
+button.red{background:#ff453a}
 .row{display:flex;gap:8px}
 .qty,.price{width:80px}
 ul{list-style:none;padding:0;margin:8px 0}
@@ -21,6 +20,9 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
 .price{font-size:12px;color:#ccc}
 .total{font-size:17px;font-weight:bold;margin-top:10px}
 .history{font-size:12px;color:#bbb}
+#scannerOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:black;z-index:999;align-items:center;justify-content:center;}
+#scannerOverlay video{width:100%;height:auto;object-fit:cover;border-radius:0;}
+#closeScanner{position:absolute;top:20px;right:20px;background:#ff3b30;color:white;border:none;padding:10px;border-radius:10px;font-size:16px;z-index:1000;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -47,9 +49,8 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
   </div>
   <button onclick="addItem()">Adicionar</button>
  
-  <h3>Adicionar Código de Barras</h3>
-  <input id="barcode" placeholder="Código de barras" type="text">
-  <button onclick="addBarcode()">Adicionar pelo código</button>
+  <h3>Adicionar Código de Barras com a Câmera</h3>
+  <button onclick="openScanner()">📷 Ler código de barras</button>
  
   <h3>Lista</h3>
   <ul id="list"></ul>
@@ -62,6 +63,9 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
  
   <button onclick="logout()">Sair</button>
 </div>
+ 
+<!-- SCANNER -->
+<div id="scannerOverlay"></div>
  
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
@@ -112,16 +116,6 @@ function addItem(){
   document.getElementById("name").value="";
   document.getElementById("qty").value="";
   document.getElementById("price").value="";
-  render();
-}
- 
-// ADICIONAR PELO CÓDIGO DE BARRAS
-function addBarcode(){
-  if(!user) return;
-  const code = document.getElementById("barcode").value.trim();
-  if(!code) return;
-  db.collection("users").doc(user).collection("items").add({name:"Código: "+code, qty:1, price:0, addedBy:user});
-  document.getElementById("barcode").value="";
   render();
 }
  
@@ -185,6 +179,60 @@ function render(){
         histEl.appendChild(li);
       });
     });
+}
+ 
+// SCANNER COM CÂMERA E API DE PRODUTO
+async function openScanner() {
+  const overlay = document.getElementById("scannerOverlay");
+  overlay.innerHTML = '<video id="scannerVideo" autoplay playsinline></video><button id="closeScanner" onclick="closeScanner()">X</button>';
+  overlay.style.display = "flex";
+ 
+  const video = document.getElementById("scannerVideo");
+  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+  video.srcObject = stream;
+ 
+  if(!("BarcodeDetector" in window)){
+    alert("BarcodeDetector não suportado neste dispositivo.");
+    return;
+  }
+ 
+  const detector = new BarcodeDetector({formats: ["ean_13","ean_8","code_128"]});
+ 
+  const detect = async ()=>{
+    try{
+      const barcodes = await detector.detect(video);
+      if(barcodes.length>0){
+        const code = barcodes[0].rawValue;
+        closeScanner();
+        fetch(`https://world.openfoodfacts.org/api/v0/product/${code}.json`)
+          .then(res=>res.json())
+          .then(data=>{
+            const name = data.product?.product_name || "Produto desconhecido";
+            db.collection("users").doc(user).collection("items").add({name, qty:1, price:0, addedBy:user});
+            render();
+            alert(`Produto adicionado: ${name}`);
+          })
+          .catch(()=>{alert("Não foi possível buscar o produto.");});
+      } else {
+        requestAnimationFrame(detect);
+      }
+    } catch(err){
+      console.log(err);
+      requestAnimationFrame(detect);
+    }
+  };
+  detect();
+}
+ 
+function closeScanner(){
+  const overlay = document.getElementById("scannerOverlay");
+  const video = document.getElementById("scannerVideo");
+  if(video && video.srcObject){
+    const tracks = video.srcObject.getTracks();
+    tracks.forEach(t=>t.stop());
+  }
+  overlay.style.display="none";
+  overlay.innerHTML="";
 }
 </script>
 </body>
