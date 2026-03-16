@@ -9,7 +9,7 @@
 body{font-family:-apple-system,BlinkMacSystemFont;background:#1c1c1e;color:white;margin:0;padding:18px;}
 .container{max-width:540px;margin:auto;background:#2c2c2e;border-radius:20px;padding:22px;box-shadow:0 10px 28px rgba(0,0,0,0.35);}
 h1{text-align:center;margin-bottom:14px}
-input,select{width:100%;padding:10px;margin:5px 0;border-radius:10px;border:none;font-size:14px;background:#3a3a3c;color:white}
+input{width:100%;padding:10px;margin:5px 0;border-radius:10px;border:none;font-size:14px;background:#3a3a3c;color:white}
 input::placeholder{color:#aaa}
 button{width:100%;padding:10px;border:none;border-radius:10px;background:#0a84ff;color:white;font-size:14px;margin-top:7px}
 button.red{background:#ff453a}
@@ -17,9 +17,6 @@ button.red{background:#ff453a}
 .qty,.price{width:80px}
 ul{list-style:none;padding:0;margin:8px 0}
 li{display:flex;justify-content:space-between;align-items:center;padding:9px;border-bottom:1px solid #444}
-.tabs{display:flex;justify-content:space-around;margin-bottom:10px}
-.tab{padding:8px 15px;border-radius:10px;background:#3a3a3c;cursor:pointer}
-.tab.active{background:#0a84ff}
 .price{font-size:12px;color:#ccc}
 .total{font-size:17px;font-weight:bold;margin-top:10px}
 .history{font-size:12px;color:#bbb}
@@ -33,7 +30,7 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
  
 <h1>🛒 Ricardo&Carol</h1>
  
-<!-- LOGIN SIMPLES -->
+<!-- LOGIN -->
 <div id="login">
   <h3>Qual é o teu nome?</h3>
   <input id="username" placeholder="Escreve o teu nome">
@@ -42,13 +39,6 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
  
 <!-- APP PRINCIPAL -->
 <div id="app" style="display:none">
-  <div class="tabs">
-    <div class="tab active" data-cat="Supermercado" onclick="switchTab(event)">Supermercado</div>
-    <div class="tab" data-cat="Casa" onclick="switchTab(event)">Casa</div>
-    <div class="tab" data-cat="Farmácia" onclick="switchTab(event)">Farmácia</div>
-    <div class="tab" data-cat="Outros" onclick="switchTab(event)">Outros</div>
-  </div>
- 
   <input id="search" placeholder="Pesquisar..." onkeyup="render()">
  
   <h3>Adicionar Produto</h3>
@@ -57,13 +47,6 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
     <input id="qty" class="qty" type="number" placeholder="Qtd" min="1">
     <input id="price" class="price" type="number" placeholder="Preço €" min="0" step="0.01">
   </div>
-  <select id="category">
-    <option>Supermercado</option>
-    <option>Casa</option>
-    <option>Farmácia</option>
-    <option>Outros</option>
-  </select>
- 
   <button onclick="addItem()">Adicionar</button>
   <button onclick="openScanner()">📷 Ler código de barras</button>
  
@@ -80,57 +63,54 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
 </div>
  
 <!-- SCANNER OVERLAY -->
-<div id="scannerOverlay">
-  <button id="closeScanner" onclick="closeScanner()">X</button>
-</div>
+<div id="scannerOverlay"></div>
  
 <!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
  
-<!-- QUAGGA -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
- 
-<!-- SCRIPT PRINCIPAL -->
 <script>
 // FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "SUA_API_KEY",
-  authDomain: "SEU_PROJETO.firebaseapp.com",
-  projectId: "SEU_PROJETO",
-  storageBucket: "SEU_PROJETO.appspot.com",
-  messagingSenderId: "SEU_ID",
-  appId: "SEU_APP_ID"
+  apiKey: "AIzaSyDIC4TRTrPXegpctUMzHMp3wx5di7ziw3U",
+  authDomain: "ricardocarolapp.firebaseapp.com",
+  projectId: "ricardocarolapp",
+  storageBucket: "ricardocarolapp.firebasestorage.app",
+  messagingSenderId: "502898050812",
+  appId: "1:502898050812:web:d270e03827d11c101e3979"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
  
-// LOGIN SIMPLES
-let user = "";
+// LOGIN GUARDADO
+let user = localStorage.getItem("user") || "";
+if(user){ document.getElementById("login").style.display="none"; document.getElementById("app").style.display="block"; render(); }
+ 
 function login(){
   const uname = document.getElementById("username").value.trim();
   if(!uname){ alert("Escreve o teu nome"); return; }
   user = uname;
+  localStorage.setItem("user", user);
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="block";
   render();
 }
+ 
 function logout(){
-  user = "";
+  localStorage.removeItem("user");
+  user="";
   document.getElementById("login").style.display="block";
   document.getElementById("app").style.display="none";
 }
  
 // FIRESTORE
-let currentTab="Supermercado";
 function addItem(){
   if(!user) return;
   const name=document.getElementById("name").value;
   const qty=parseInt(document.getElementById("qty").value)||1;
   const price=parseFloat(document.getElementById("price").value)||0;
-  const category=document.getElementById("category").value;
   if(!name) return;
-  db.collection("users").doc(user).collection("items").add({name,qty,price,category});
+  db.collection("users").doc(user).collection("items").add({name, qty, price, addedBy:user});
   document.getElementById("name").value="";
   document.getElementById("qty").value="";
   document.getElementById("price").value="";
@@ -140,7 +120,7 @@ function addItem(){
 function toggle(id,item){
   if(!user) return;
   db.collection("users").doc(user).collection("items").doc(id).delete();
-  db.collection("users").doc(user).collection("history").add({...item,date:new Date().toLocaleDateString()});
+  db.collection("users").doc(user).collection("history").add({...item, date:new Date().toLocaleDateString()});
   render();
 }
  
@@ -168,15 +148,16 @@ function render(){
   listEl.innerHTML=""; histEl.innerHTML="";
   let total=0;
  
-  db.collection("users").doc(user).collection("items").where("category","==",currentTab).get()
+  db.collection("users").doc(user).collection("items").get()
     .then(snap=>{
       snap.forEach(doc=>{
-        const item=doc.data(); total+=item.qty*item.price;
+        const item=doc.data();
+        total+=item.qty*item.price;
         if(item.name.toLowerCase().includes(search)){
           const li=document.createElement("li");
           li.innerHTML=`<div>
             <input type="checkbox" onchange='toggle("${doc.id}",${JSON.stringify(item)})'>
-            ${item.qty}x ${item.name} <div class="price">${item.category} • €${item.price}</div>
+            ${item.qty}x ${item.name} <div class="price">Adicionado por: ${item.addedBy} • €${item.price}</div>
           </div>
           <button onclick='removeItem("${doc.id}")'>❌</button>`;
           listEl.appendChild(li);
@@ -185,58 +166,61 @@ function render(){
       totalEl.innerText="Total estimado: €"+total.toFixed(2);
     });
  
-  db.collection("users").doc(user).collection("history").where("category","==",currentTab).get()
+  db.collection("users").doc(user).collection("history").get()
     .then(snap=>{
       snap.forEach(doc=>{
         const item=doc.data();
         const li=document.createElement("li");
-        li.innerText=`${item.qty}x ${item.name} - ${item.date}`;
+        li.innerText=`${item.qty}x ${item.name} - ${item.addedBy || "?"} - ${item.date}`;
         histEl.appendChild(li);
       });
     });
 }
  
-// TABS
-function switchTab(e){
-  document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
-  e.target.classList.add("active");
-  currentTab=e.target.dataset.cat;
-  render();
-}
+// SCANNER FUNCIONAL iOS 16+
+async function openScanner() {
+  const overlay = document.getElementById("scannerOverlay");
+  overlay.innerHTML = '<video id="scannerVideo" autoplay playsinline></video><button id="closeScanner" onclick="closeScanner()">X</button>';
+  overlay.style.display = "flex";
  
-// SCANNER FUNCIONAL NO iOS
-function openScanner(){
-  const overlay=document.getElementById("scannerOverlay");
-  overlay.style.display="flex";
-  Quagga.init({
-    inputStream:{
-      name:"Live",
-      type:"LiveStream",
-      target:overlay,
-      constraints:{facingMode:"environment"}
-    },
-    decoder:{readers:["ean_reader","ean_8_reader","code_128_reader"]},
-    locate:true
-  }, err=>{
-    if(err){ alert("Não foi possível iniciar scanner"); console.log(err); return; }
-    Quagga.start();
-  });
-  Quagga.onDetected(handleScan);
-}
+  const video = document.getElementById("scannerVideo");
+  const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
+  video.srcObject = stream;
  
-function handleScan(result){
-  if(result && result.codeResult && result.codeResult.code){
-    alert("Código detectado: "+result.codeResult.code);
-    closeScanner();
+  if (!("BarcodeDetector" in window)) {
+    alert("BarcodeDetector não suportado neste dispositivo.");
+    return;
   }
+ 
+  const barcodeDetector = new BarcodeDetector({ formats: ["ean_13","ean_8","code_128"] });
+ 
+  const detectBarcode = async () => {
+    try {
+      const barcodes = await barcodeDetector.detect(video);
+      if (barcodes.length > 0) {
+        alert("Código detectado: " + barcodes[0].rawValue);
+        closeScanner();
+      } else {
+        requestAnimationFrame(detectBarcode);
+      }
+    } catch (err) {
+      console.log(err);
+      requestAnimationFrame(detectBarcode);
+    }
+  };
+  detectBarcode();
 }
  
 function closeScanner(){
-  Quagga.stop();
-  Quagga.offDetected();
-  document.getElementById("scannerOverlay").style.display="none";
+  const overlay = document.getElementById("scannerOverlay");
+  const video = document.getElementById("scannerVideo");
+  if(video && video.srcObject){
+    const tracks = video.srcObject.getTracks();
+    tracks.forEach(track => track.stop());
+  }
+  overlay.style.display = "none";
+  overlay.innerHTML = "";
 }
 </script>
 </body>
 </html>
- 
