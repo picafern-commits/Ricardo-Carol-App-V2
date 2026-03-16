@@ -38,7 +38,7 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
   <button onclick="login()">Entrar</button>
 </div>
  
-<!-- APP -->
+<!-- APP PRINCIPAL -->
 <div id="app" style="display:none">
   <div class="tabs">
     <div class="tab active" data-cat="Supermercado" onclick="switchTab(event)">Supermercado</div>
@@ -77,16 +77,16 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
   <button onclick="logout()">Sair</button>
 </div>
  
-<!-- FIREBASE (para sincronização simples) -->
+<!-- ===== FIREBASE ===== -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
  
-<!-- SCANNER DE CÓDIGO DE BARRAS -->
+<!-- ===== SCANNER DE CÓDIGO DE BARRAS ===== -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
  
-<!-- SCRIPT PRINCIPAL -->
+<!-- ===== SCRIPT PRINCIPAL ===== -->
 <script>
-// ===== CONFIGURAÇÃO DO FIREBASE =====
+// CONFIGURAÇÃO FIREBASE
 const firebaseConfig = {
   apiKey: "AIzaSyDIC4TRTrPXegpctUMzHMp3wx5di7ziw3U",
   authDomain: "ricardocarolapp.firebaseapp.com",
@@ -98,7 +98,7 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
  
-// ===== LOGIN SIMPLES SEM SENHA =====
+// LOGIN SIMPLES
 let user = "";
 function login(){
   const uname = document.getElementById("username").value.trim();
@@ -115,7 +115,7 @@ function logout(){
   document.getElementById("app").style.display="none";
 }
  
-// ===== FIRESTORE =====
+// FIRESTORE
 let currentTab="Supermercado";
  
 function addItem(){
@@ -191,7 +191,7 @@ function render(){
     });
 }
  
-// ===== TABS =====
+// TABS
 function switchTab(e){
   document.querySelectorAll(".tab").forEach(t=>t.classList.remove("active"));
   e.target.classList.add("active");
@@ -199,7 +199,7 @@ function switchTab(e){
   render();
 }
  
-// ===== SCANNER =====
+// SCANNER DE CÓDIGO DE BARRAS
 function scanBarcode(){
   Quagga.init({
     inputStream:{type:"LiveStream",constraints:{facingMode:"environment"}},
