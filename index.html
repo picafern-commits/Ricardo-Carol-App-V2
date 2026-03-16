@@ -12,6 +12,7 @@
 <div class="container">
 <h2>🛒 Ricardo&Carol</h2>
 
+<!-- Botões rápidos de produtos -->
 <div class="card quick-buttons">
   <button onclick="quickAdd('Leite')"><i class="fas fa-cow"></i> Leite</button>
   <button onclick="quickAdd('Pão')"><i class="fas fa-bread-slice"></i> Pão</button>
@@ -20,15 +21,24 @@
   <button onclick="quickAdd('Massa')"><i class="fas fa-utensils"></i> Massa</button>
 </div>
 
+<!-- Formulário de adicionar produtos -->
 <div class="card">
   <input id="name" placeholder="Produto">
   <input id="qty" type="number" placeholder="Quantidade">
   <input id="price" type="number" placeholder="Preço">
+  <select id="store">
+    <option value="Action">Action</option>
+    <option value="Continente">Continente</option>
+    <option value="Lidl">Lidl</option>
+    <option value="Mercadona">Mercadona</option>
+    <option value="Pingo Doce">Pingo Doce</option>
+  </select>
   <button onclick="addItem()">Adicionar</button>
   <button style="background:#ff3b30" onclick="clearList()">Apagar Lista</button>
   <button style="background:#ff9500" onclick="goHistory()">Histórico</button>
 </div>
 
+<!-- Lista de produtos -->
 <div class="card">
   <h3>Lista</h3>
   <ul id="list"></ul>
@@ -46,13 +56,19 @@ if(!user){ window.location.href="login.html"; }
 const itemsRef = db.collection("ricardoCarolApp").doc("lista").collection("items");
 const historyRef = db.collection("ricardoCarolApp").doc("lista").collection("history");
 
+// Adiciona produto
 function addItem(nameManual){
   const name = nameManual||document.getElementById("name").value.trim();
   const qty = parseInt(document.getElementById("qty").value)||1;
   const price = parseFloat(document.getElementById("price").value)||0;
+  const store = document.getElementById("store").value;
   if(!name) return;
-  itemsRef.add({name,qty,price,addedBy:user,date:new Date()});
-  if(!nameManual){ document.getElementById("name").value=""; document.getElementById("qty").value=""; document.getElementById("price").value=""; }
+  itemsRef.add({name, qty, price, store, addedBy:user, date:new Date()});
+  if(!nameManual){ 
+    document.getElementById("name").value="";
+    document.getElementById("qty").value="";
+    document.getElementById("price").value="";
+  }
 }
 function quickAdd(name){ addItem(name); }
 function clearList(){ if(confirm("Apagar toda a lista?")){ itemsRef.get().then(s=>s.forEach(d=>d.ref.delete())); } }
@@ -67,17 +83,32 @@ itemsRef.onSnapshot(snap=>{
     total+=item.qty*item.price;
     const li=document.createElement("li");
     const colorClass="user-color-"+item.addedBy.replace(/ /g,"");
-    li.innerHTML=`<div class="flex"><input type="checkbox" onclick="buyItem('${doc.id}')"><strong>${item.qty}x ${item.name}</strong></div>
-    <div class="flex"><input type="number" value="${item.price}" onchange="editPrice('${doc.id}',this.value)"><div class="small ${colorClass}">${item.addedBy}</div></div>`;
+    li.innerHTML=`<div class="flex">
+      <input type="checkbox" onclick="buyItem('${doc.id}')">
+      <strong>${item.qty}x ${item.name}</strong>
+      <span class="small">[${item.store}]</span>
+    </div>
+    <div class="flex">
+      <input type="number" value="${item.price}" onchange="editPrice('${doc.id}',this.value)">
+      <div class="small ${colorClass}">${item.addedBy}</div>
+    </div>`;
     list.appendChild(li);
   });
   document.getElementById("total").innerText="Total: €"+total.toFixed(2);
 });
 
+// Marca como comprado e envia para histórico
 function buyItem(id){
   itemsRef.doc(id).get().then(doc=>{
     const itemData = doc.data();
-    historyRef.add({name:itemData.name,qty:itemData.qty,price:itemData.price,addedBy:itemData.addedBy,date:new Date()});
+    historyRef.add({
+      name: itemData.name,
+      qty: itemData.qty,
+      price: itemData.price,
+      store: itemData.store,
+      addedBy: itemData.addedBy,
+      date: new Date()
+    });
     itemsRef.doc(id).delete();
   });
 }
