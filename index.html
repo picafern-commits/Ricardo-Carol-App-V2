@@ -23,9 +23,11 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
 .price{font-size:12px;color:#ccc}
 .total{font-size:17px;font-weight:bold;margin-top:10px}
 .history{font-size:12px;color:#bbb}
+#scannerOverlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:black;z-index:999;align-items:center;justify-content:center;}
+#scannerOverlay video{width:100%;height:auto;object-fit:cover;border-radius:0;}
+#closeScanner{position:absolute;top:20px;right:20px;background:#ff3b30;color:white;border:none;padding:10px;border-radius:10px;font-size:16px;z-index:1000;cursor:pointer;}
 </style>
 </head>
- 
 <body>
 <div class="container">
  
@@ -63,7 +65,7 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
   </select>
  
   <button onclick="addItem()">Adicionar</button>
-  <button onclick="scanBarcode()">📷 Ler código de barras</button>
+  <button onclick="openScanner()">📷 Ler código de barras</button>
  
   <h3>Lista</h3>
   <ul id="list"></ul>
@@ -77,23 +79,28 @@ li{display:flex;justify-content:space-between;align-items:center;padding:9px;bor
   <button onclick="logout()">Sair</button>
 </div>
  
-<!-- ===== FIREBASE ===== -->
+<!-- SCANNER OVERLAY -->
+<div id="scannerOverlay">
+  <button id="closeScanner" onclick="closeScanner()">X</button>
+</div>
+ 
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
  
-<!-- ===== SCANNER DE CÓDIGO DE BARRAS ===== -->
+<!-- QUAGGA -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/quagga/0.12.1/quagga.min.js"></script>
  
-<!-- ===== SCRIPT PRINCIPAL ===== -->
+<!-- SCRIPT PRINCIPAL -->
 <script>
-// CONFIGURAÇÃO FIREBASE
+// FIREBASE CONFIG
 const firebaseConfig = {
-  apiKey: "AIzaSyDIC4TRTrPXegpctUMzHMp3wx5di7ziw3U",
-  authDomain: "ricardocarolapp.firebaseapp.com",
-  projectId: "ricardocarolapp",
-  storageBucket: "ricardocarolapp.firebasestorage.app",
-  messagingSenderId: "502898050812",
-  appId: "1:502898050812:web:d270e03827d11c101e3979"
+  apiKey: "SUA_API_KEY",
+  authDomain: "SEU_PROJETO.firebaseapp.com",
+  projectId: "SEU_PROJETO",
+  storageBucket: "SEU_PROJETO.appspot.com",
+  messagingSenderId: "SEU_ID",
+  appId: "SEU_APP_ID"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
@@ -108,7 +115,6 @@ function login(){
   document.getElementById("app").style.display="block";
   render();
 }
- 
 function logout(){
   user = "";
   document.getElementById("login").style.display="block";
@@ -117,7 +123,6 @@ function logout(){
  
 // FIRESTORE
 let currentTab="Supermercado";
- 
 function addItem(){
   if(!user) return;
   const name=document.getElementById("name").value;
@@ -199,40 +204,39 @@ function switchTab(e){
   render();
 }
  
-// SCANNER DE CÓDIGO DE BARRAS
-function scanBarcode(){
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
-    alert("Seu navegador não suporta scanner de código de barras");
-    return;
-  }
- 
+// SCANNER FUNCIONAL NO iOS
+function openScanner(){
+  const overlay=document.getElementById("scannerOverlay");
+  overlay.style.display="flex";
   Quagga.init({
     inputStream:{
-      name: "Live",
-      type: "LiveStream",
-      constraints: {
-        facingMode: "environment",
-        width: {min: 640},
-        height: {min: 480}
-      },
-      target: document.querySelector('body') // ou cria div overlay
+      name:"Live",
+      type:"LiveStream",
+      target:overlay,
+      constraints:{facingMode:"environment"}
     },
-    decoder: { readers: ["ean_reader","ean_8_reader","code_128_reader"] },
-    locate: true
-  }, function(err){
-    if(err){ console.log(err); alert("Não foi possível iniciar scanner"); return; }
+    decoder:{readers:["ean_reader","ean_8_reader","code_128_reader"]},
+    locate:true
+  }, err=>{
+    if(err){ alert("Não foi possível iniciar scanner"); console.log(err); return; }
     Quagga.start();
   });
+  Quagga.onDetected(handleScan);
+}
  
-  // Quando detectar o código
-  Quagga.onDetected(function(result){
-    if(result && result.codeResult && result.codeResult.code){
-      alert("Código detectado: "+result.codeResult.code);
-      Quagga.stop();
-      Quagga.offDetected();
-    }
-  });
+function handleScan(result){
+  if(result && result.codeResult && result.codeResult.code){
+    alert("Código detectado: "+result.codeResult.code);
+    closeScanner();
+  }
+}
+ 
+function closeScanner(){
+  Quagga.stop();
+  Quagga.offDetected();
+  document.getElementById("scannerOverlay").style.display="none";
 }
 </script>
 </body>
 </html>
+ 
