@@ -7,22 +7,22 @@
 <style>
 html,body{margin:0;padding:0;width:100%;height:100%;overflow-x:hidden;-webkit-text-size-adjust:none;}
 body{font-family:-apple-system,BlinkMacSystemFont;background:#1c1c1e;color:white;padding:10px;touch-action: manipulation;}
-.container{max-width:540px;margin:auto;background:#2c2c2e;border-radius:20px;padding:20px;box-shadow:0 10px 28px rgba(0,0,0,0.35);}
-h1{text-align:center;margin-bottom:10px}
-input,select{width:100%;padding:10px;margin:5px 0;border-radius:10px;border:none;font-size:14px;background:#3a3a3c;color:white}
+.container{max-width:540px;margin:auto;background:#2c2c2e;border-radius:20px;padding:20px;box-shadow:0 6px 18px rgba(0,0,0,0.4);}
+h1{text-align:center;margin-bottom:12px;font-size:22px;}
+input,select{width:100%;padding:10px;margin:5px 0;border-radius:12px;border:none;font-size:14px;background:#3a3a3c;color:white;box-shadow: inset 0 2px 4px rgba(0,0,0,0.5);}
 input::placeholder{color:#aaa}
-button{width:100%;padding:10px;border:none;border-radius:10px;background:#0a84ff;color:white;font-size:14px;margin-top:7px}
-button.red{background:#ff453a}
-.row{display:flex;gap:8px}
+button{width:100%;padding:12px;border:none;border-radius:12px;background:#0a84ff;color:white;font-size:14px;margin-top:7px;box-shadow: 0 3px 6px rgba(0,0,0,0.3);}
+button.red{background:#ff453a;}
+.row{display:flex;gap:8px;}
 .qty,.price{width:80px}
-ul{list-style:none;padding:0;margin:8px 0}
-li{display:flex;justify-content:space-between;align-items:center;padding:9px;border-bottom:1px solid #444;flex-wrap:wrap;}
+ul{list-style:none;padding:0;margin:10px 0;}
+li{display:flex;justify-content:space-between;align-items:center;padding:10px;margin-bottom:6px;background:#3a3a3c;border-radius:12px;box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);flex-wrap:wrap;}
 li div{flex:1}
-.price{font-size:13px;color:#ccc}
-.total{font-size:17px;font-weight:bold;margin-top:10px}
-.history{font-size:14px;color:#ddd;margin-top:10px}
-.history-day{margin-top:15px;border-top:1px solid #555;padding-top:5px;}
-.history-day h4{margin:0 0 5px 0;color:#0a84ff;}
+.price{font-size:13px;color:#ccc;margin-top:4px;}
+.total{font-size:17px;font-weight:bold;margin-top:10px;text-align:right;}
+.history{font-size:14px;color:#ddd;margin-top:10px;}
+.history-day{margin-top:15px;padding:8px;border-top:1px solid #555;border-radius:10px;background:#2c2c2e;box-shadow: 0 2px 5px rgba(0,0,0,0.3);}
+.history-day h4{margin:0 0 6px 0;color:#0a84ff;font-size:16px;}
 </style>
 </head>
 <body>
@@ -80,7 +80,6 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
  
-// LOGIN PERSISTENTE
 let user = localStorage.getItem("user") || "";
 let tipo = "casa";
  
@@ -107,7 +106,6 @@ function logout() {
   if(historyListener) historyListener();
 }
  
-// --- LISTA COMPARTILHADA ---
 let itemsListener;
 let historyListener;
  
@@ -156,11 +154,10 @@ function renderHistory(snapshot){
     if(!dias[date]) dias[date]=[];
     dias[date].push(item);
   });
-  // Render por dia
   for(const dia of Object.keys(dias).sort((a,b)=>new Date(b)-new Date(a))){
     const dayDiv=document.createElement("div");
     dayDiv.className="history-day";
-    const totalDia = dias[dia].reduce((s,i)=>s+i.qty*i.price,0);
+    const totalDia = dias[dia].reduce((s,i)=>s.qty*i.price+s,0);
     dayDiv.innerHTML=`<h4>${dia} - Total: €${totalDia.toFixed(2)}</h4>`;
     dias[dia].forEach(item=>{
       const li=document.createElement("li");
@@ -178,7 +175,6 @@ document.getElementById("tipo").addEventListener("change", ()=>{
   startRealtimeListeners();
 });
  
-// ADICIONAR ITEM
 function addItem(){
   if(!user) return;
   const name=document.getElementById("name").value;
@@ -191,22 +187,15 @@ function addItem(){
   document.getElementById("price").value="";
 }
  
-// TOGGLE CHECKED
 function toggle(id,item){
   db.collection("sharedItems").doc(tipo).collection("itens").doc(id).delete();
   db.collection("sharedHistory").doc(tipo).collection("historico").add({...item,date:new Date().toLocaleDateString()});
 }
  
-// REMOVER ITEM
 function removeItem(id){ db.collection("sharedItems").doc(tipo).collection("itens").doc(id).delete(); }
- 
-// LIMPAR LISTA
 function clearList(){ db.collection("sharedItems").doc(tipo).collection("itens").get().then(snap=>snap.forEach(d=>d.ref.delete())); }
- 
-// LIMPAR HISTÓRICO
 function clearHistory(){ db.collection("sharedHistory").doc(tipo).collection("historico").get().then(snap=>snap.forEach(d=>d.ref.delete())); }
  
-// LOGIN AUTOMÁTICO
 if(user){
   document.getElementById("login").style.display="none";
   document.getElementById("app").style.display="block";
