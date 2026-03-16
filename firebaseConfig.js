@@ -7,3 +7,4 @@ projectId:"ricardo-carol-app"
  
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
+
