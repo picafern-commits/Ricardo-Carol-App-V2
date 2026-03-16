@@ -201,11 +201,37 @@ function switchTab(e){
  
 // SCANNER DE CÓDIGO DE BARRAS
 function scanBarcode(){
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+    alert("Seu navegador não suporta scanner de código de barras");
+    return;
+  }
+ 
   Quagga.init({
-    inputStream:{type:"LiveStream",constraints:{facingMode:"environment"}},
-    decoder:{readers:["ean_reader","ean_8_reader","code_128_reader"]}
-  },err=>{if(err) return alert("Não foi possível iniciar scanner"); Quagga.start();});
-  Quagga.onDetected(data=>{alert("Código detectado: "+data.codeResult.code); Quagga.stop();});
+    inputStream:{
+      name: "Live",
+      type: "LiveStream",
+      constraints: {
+        facingMode: "environment",
+        width: {min: 640},
+        height: {min: 480}
+      },
+      target: document.querySelector('body') // ou cria div overlay
+    },
+    decoder: { readers: ["ean_reader","ean_8_reader","code_128_reader"] },
+    locate: true
+  }, function(err){
+    if(err){ console.log(err); alert("Não foi possível iniciar scanner"); return; }
+    Quagga.start();
+  });
+ 
+  // Quando detectar o código
+  Quagga.onDetected(function(result){
+    if(result && result.codeResult && result.codeResult.code){
+      alert("Código detectado: "+result.codeResult.code);
+      Quagga.stop();
+      Quagga.offDetected();
+    }
+  });
 }
 </script>
 </body>
