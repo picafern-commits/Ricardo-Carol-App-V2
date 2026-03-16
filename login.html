@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Login - Ricardo&Carol</title>
 <link rel="stylesheet" href="style.css">
+<link rel="manifest" href="manifest.json">
 </head>
 <body>
 <div class="container">
@@ -18,15 +19,13 @@
     <button onclick="login('Pedro')">Pedro</button>
   </div>
 </div>
- 
 <script>
 function login(name){
   localStorage.setItem("user", name);
   window.location.href="index.html";
 }
- 
-let user = localStorage.getItem("user");
-if(user){ window.location.href="index.html"; }
+if(localStorage.getItem("user")) window.location.href="index.html";
+if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-worker.js'); }
 </script>
 </body>
 </html>
