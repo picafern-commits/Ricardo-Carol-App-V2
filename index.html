@@ -1,267 +1,292 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
- 
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
- 
 <title>Ricardo&Carol</title>
  
 <style>
- 
 body{
-font-family:-apple-system;
-background:#121212;
-color:white;
-margin:0;
-padding:15px;
+  font-family:-apple-system;
+  background:#121212;
+  color:white;
+  margin:0;
+  padding:15px;
 }
- 
 .container{
-max-width:520px;
-margin:auto;
+  max-width:520px;
+  margin:auto;
 }
- 
 .card{
-background:#1e1e1e;
-border-radius:16px;
-padding:16px;
-margin-bottom:15px;
+  background:#1e1e1e;
+  border-radius:16px;
+  padding:16px;
+  margin-bottom:15px;
+  transition: all 0.3s ease;
 }
- 
 button{
-width:100%;
-padding:14px;
-border:none;
-border-radius:10px;
-background:#0a84ff;
-color:white;
-font-size:16px;
-margin-top:8px;
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  background:#0a84ff;
+  color:white;
+  font-size:16px;
+  margin-top:8px;
+  cursor:pointer;
+  transition: all 0.2s ease;
 }
- 
+button:hover{
+  background:#0f9fff;
+}
 input{
-width:100%;
-padding:12px;
-margin-top:6px;
-border:none;
-border-radius:10px;
-background:#2c2c2e;
-color:white;
+  width:100%;
+  padding:12px;
+  margin-top:6px;
+  border:none;
+  border-radius:10px;
+  background:#2c2c2e;
+  color:white;
 }
- 
 ul{
-list-style:none;
-padding:0;
+  list-style:none;
+  padding:0;
 }
- 
 li{
-background:#2c2c2e;
-padding:12px;
-border-radius:10px;
-margin-bottom:8px;
-display:flex;
-justify-content:space-between;
-align-items:center;
+  background:#2c2c2e;
+  padding:12px;
+  border-radius:10px;
+  margin-bottom:8px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  transition: all 0.3s ease;
 }
- 
 .small{
-font-size:13px;
-color:#aaa;
+  font-size:13px;
+  color:#aaa;
 }
- 
 .total{
-margin-top:10px;
-font-weight:bold;
-text-align:right;
+  margin-top:10px;
+  font-weight:bold;
+  text-align:right;
 }
- 
+.flex{
+  display:flex;
+  gap:5px;
+  align-items:center;
+}
+.flex input{
+  width:60px;
+}
+.quick-buttons{
+  display:flex;
+  gap:5px;
+  margin-bottom:10px;
+  flex-wrap:wrap;
+}
+.quick-buttons button{
+  width:auto;
+  flex:1 1 30%;
+}
+.fade-enter{
+  opacity:0;
+  transform:translateY(-10px);
+}
+.fade-enter-active{
+  opacity:1;
+  transform:translateY(0);
+  transition: all 0.3s ease;
+}
 </style>
- 
 </head>
  
 <body>
- 
 <div class="container">
- 
 <h2>🛒 Ricardo&Carol</h2>
  
+<!-- LOGIN -->
 <div id="login" class="card">
- 
 <h3>Quem está a usar?</h3>
- 
 <button onclick="login('Ricardo')">Ricardo</button>
 <button onclick="login('Carol')">Carol</button>
-<button onclick="login('João')">João</button>
+<button onclick="login('Jorge')">João</button>
 <button onclick="login('Maria')">Maria</button>
-<button onclick="login('Pedro')">Pedro</button>
- 
 </div>
  
+<!-- APP -->
 <div id="app" style="display:none">
  
-<div class="card">
+<!-- Produtos rápidos -->
+<div class="card quick-buttons">
+<button onclick="quickAdd('Leite')">Leite</button>
+<button onclick="quickAdd('Pão')">Pão</button>
+<button onclick="quickAdd('Ovos')">Ovos</button>
+<button onclick="quickAdd('Arroz')">Arroz</button>
+<button onclick="quickAdd('Massa')">Massa</button>
+</div>
  
+<!-- Adicionar manualmente -->
+<div class="card">
 <input id="name" placeholder="Produto">
- 
 <input id="qty" type="number" placeholder="Quantidade">
- 
 <input id="price" type="number" placeholder="Preço">
- 
 <button onclick="addItem()">Adicionar</button>
- 
+<button style="background:#ff3b30" onclick="clearList()">Apagar Lista</button>
 </div>
  
 <div class="card">
- 
 <h3>Lista</h3>
- 
 <ul id="list"></ul>
- 
 <div class="total" id="total"></div>
- 
 </div>
  
 <div class="card">
- 
 <h3>Histórico</h3>
- 
 <div id="history"></div>
- 
 </div>
  
 </div>
- 
 </div>
  
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
  
 <script>
- 
-// COLOCAR CONFIG FIREBASE AQUI
- 
+// 1️⃣ CONFIGURAÇÃO DO FIREBASE
 const firebaseConfig = {
 apiKey:"AIzaSyCqOp8DRQQI4JZSzOnX_4yl3TrhxT4m6S0",
 authDomain:"ricardo-carol-app.firebaseapp.com",
 projectId:"ricardo-carol-app"
 };
- 
 firebase.initializeApp(firebaseConfig);
- 
 const db = firebase.firestore();
  
+// 2️⃣ LOGIN FIXO
 let user = localStorage.getItem("user");
  
 function login(name){
- 
-user=name;
- 
-localStorage.setItem("user",name);
- 
-document.getElementById("login").style.display="none";
-document.getElementById("app").style.display="block";
- 
-start();
- 
+  user=name;
+  localStorage.setItem("user",name);
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
+  startRealtime();
 }
  
 if(user){
- 
-document.getElementById("login").style.display="none";
-document.getElementById("app").style.display="block";
- 
-start();
- 
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
+  startRealtime();
 }
  
-function addItem(){
+// 3️⃣ ADICIONAR PRODUTO
+function addItem(nameManual){
+  const name=nameManual || document.getElementById("name").value.trim();
+  const qty=parseInt(document.getElementById("qty").value)||1;
+  const price=parseFloat(document.getElementById("price").value)||0;
+  if(!name) return;
  
-const name=document.getElementById("name").value.trim();
-const qty=parseInt(document.getElementById("qty").value)||1;
-const price=parseFloat(document.getElementById("price").value)||0;
+  db.collection("ricardoCarolApp")
+    .doc("lista")
+    .collection("items")
+    .add({name, qty, price, addedBy:user, date:new Date()});
  
-if(!name) return;
- 
-db.collection("ricardoCarolApp")
-.doc("lista")
-.collection("items")
-.add({
-name,
-qty,
-price,
-addedBy:user,
-date:new Date()
-});
- 
-document.getElementById("name").value="";
-document.getElementById("qty").value="";
-document.getElementById("price").value="";
- 
+  if(!nameManual){
+    document.getElementById("name").value="";
+    document.getElementById("qty").value="";
+    document.getElementById("price").value="";
+  }
 }
  
-function start(){
- 
-db.collection("ricardoCarolApp")
-.doc("lista")
-.collection("items")
-.onSnapshot(snap=>{
- 
-const list=document.getElementById("list");
- 
-list.innerHTML="";
- 
-let total=0;
- 
-snap.forEach(doc=>{
- 
-const item=doc.data();
- 
-total+=item.qty*item.price;
- 
-const li=document.createElement("li");
- 
-li.innerHTML=`
-<div>
-<input type="checkbox" onclick="buyItem('${doc.id}')">
-<strong>${item.qty}x ${item.name}</strong>
-<div class="small">${item.addedBy} • €${item.price}</div>
-</div>
-`;
- 
-list.appendChild(li);
- 
-});
- 
-document.getElementById("total").innerText="Total: €"+total.toFixed(2);
- 
-});
- 
+// 3a️⃣ PRODUTOS RÁPIDOS
+function quickAdd(name){
+  addItem(name);
 }
  
+// 4️⃣ LIMPAR LISTA
+function clearList(){
+  if(!confirm("Apagar toda a lista?")) return;
+  db.collection("ricardoCarolApp").doc("lista").collection("items")
+    .get().then(snap=>{
+      snap.forEach(doc=>{
+        doc.ref.delete();
+      });
+    });
+}
+ 
+// 5️⃣ SINCRONIZAÇÃO TEMPO REAL
+function startRealtime(){
+  db.collection("ricardoCarolApp").doc("lista").collection("items")
+    .onSnapshot(snap=>{
+      const list=document.getElementById("list");
+      list.innerHTML="";
+      let total=0;
+      snap.forEach(doc=>{
+        const item=doc.data();
+        total += item.qty*item.price;
+ 
+        const li=document.createElement("li");
+        li.classList.add("fade-enter");
+ 
+        li.innerHTML=`
+          <div>
+            <div class="flex">
+              <input type="checkbox" onclick="buyItem('${doc.id}')">
+              <strong>${item.qty}x ${item.name}</strong>
+            </div>
+            <div class="flex">
+              <input type="number" value="${item.price}" onchange="editPrice('${doc.id}',this.value)">
+              <div class="small">${item.addedBy}</div>
+            </div>
+          </div>
+        `;
+        list.appendChild(li);
+        setTimeout(()=>li.classList.remove("fade-enter"),50);
+      });
+      document.getElementById("total").innerText="Total: €"+total.toFixed(2);
+    });
+ 
+  // histórico
+  db.collection("ricardoCarolApp").doc("lista").collection("history")
+    .orderBy("date","desc")
+    .onSnapshot(snap=>{
+      const history=document.getElementById("history");
+      history.innerHTML="";
+      let grouped={};
+      snap.forEach(doc=>{
+        const item=doc.data();
+        const day=item.date.toDate().toLocaleDateString();
+        if(!grouped[day]) grouped[day]=[];
+        grouped[day].push(item);
+      });
+      for(const day in grouped){
+        let sum=0;
+        let html=`<div class="card"><strong>${day}</strong><ul>`;
+        grouped[day].forEach(i=>{
+          sum+=i.price*i.qty;
+          html+=`<li>${i.qty}x ${i.name} (${i.addedBy}) €${i.price}</li>`;
+        });
+        html+=`</ul><div class="small">Total: €${sum.toFixed(2)}</div></div>`;
+        history.innerHTML+=html;
+      }
+    });
+}
+ 
+// 6️⃣ MARCAR ITEM COMO COMPRADO
 function buyItem(id){
- 
-const ref=db.collection("ricardoCarolApp")
-.doc("lista")
-.collection("items")
-.doc(id);
- 
-ref.get().then(doc=>{
- 
-const item=doc.data();
- 
-db.collection("ricardoCarolApp")
-.doc("lista")
-.collection("history")
-.add(item);
- 
-ref.delete();
- 
-});
- 
+  const ref=db.collection("ricardoCarolApp").doc("lista").collection("items").doc(id);
+  ref.get().then(doc=>{
+    const item=doc.data();
+    db.collection("ricardoCarolApp").doc("lista").collection("history").add(item);
+    ref.delete();
+  });
 }
  
+// 7️⃣ EDITAR PREÇO
+function editPrice(id,newPrice){
+  const price=parseFloat(newPrice)||0;
+  db.collection("ricardoCarolApp").doc("lista").collection("items").doc(id).update({price});
+}
 </script>
- 
 </body>
 </html>
