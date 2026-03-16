@@ -4,41 +4,29 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>Login - Ricardo&Carol</title>
-<style>
-body{margin:0;font-family:-apple-system;background:#121212;color:white;}
-.container{max-width:520px;margin:auto;padding:20px;}
-.card{background:#1e1e1e;border-radius:20px;padding:20px;margin-bottom:20px;text-align:center;}
-button{padding:14px;border:none;border-radius:12px;background:#0a84ff;color:white;font-size:16px;width:80%;margin:10px auto;display:block;cursor:pointer;transition:all 0.2s;}
-button:hover{background:#0f9fff;}
-h2{margin-bottom:20px;}
-</style>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
 <div class="container">
- 
-<div class="card">
-<h2>🛒 Ricardo&Carol</h2>
-<h3>Escolhe o utilizador</h3>
-<button onclick="login('Ricardo')">Ricardo</button>
-<button onclick="login('Carol')">Carol</button>
-<button onclick="login('João')">João</button>
-<button onclick="login('Maria')">Maria</button>
-<button onclick="login('Pedro')">Pedro</button>
+  <div class="card">
+    <h2>🛒 Ricardo&Carol</h2>
+    <h3>Escolhe o utilizador</h3>
+    <button onclick="login('Ricardo')">Ricardo</button>
+    <button onclick="login('Carol')">Carol</button>
+    <button onclick="login('Maria')">Maria</button>
+    <button onclick="login('Pedro')">Jorge</button>
+  </div>
 </div>
  
 <script>
-// LOGIN FIXO
 function login(name){
   localStorage.setItem("user", name);
-  window.location.href="index.html"; // Redireciona para a lista
-}
- 
-// SE JÁ HOUVER LOGIN SALVO, REDIRECIONA AUTOMÁTICO
-let user = localStorage.getItem("user");
-if(user){
   window.location.href="index.html";
 }
-</script>
  
+// Redireciona automaticamente se já estiver logado
+let user = localStorage.getItem("user");
+if(user){ window.location.href="index.html"; }
+</script>
 </body>
 </html>
