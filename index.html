@@ -1,131 +1,233 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Lista - Ricardo&Carol</title>
-<link rel="stylesheet" href="style.css">
-<link rel="manifest" href="manifest.json">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css">
-<style>
-body{font-family:Arial,sans-serif;margin:20px;background:#1e1e1e;color:white;}
-h2{text-align:center;}
-.container{max-width:500px;margin:auto;background:#2b2b2b;padding:20px;border-radius:10px;}
-.card{background:#333;padding:15px;border-radius:8px;margin-bottom:15px;}
-input,button,select{padding:10px;margin:5px 0;font-size:16px;border-radius:5px;border:none;}
-button{cursor:pointer;color:white;}
-button:hover{opacity:0.9;}
-ul{list-style:none;padding:0;}
-li{display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #444;}
-.flex{display:flex;justify-content:space-between;align-items:center;}
-.total{margin-top:10px;font-weight:bold;text-align:right;}
-input[type=number]{width:60px;}
-select{width:calc(100% - 10px); /* mesmo tamanho do botão adicionar */ margin-bottom:5px;}
-.small{font-size:12px;color:#ccc;margin-left:5px;}
-.quick-buttons button{margin-right:5px;}
-.user-color-user1{color:#ffd700;}
-.user-color-user2{color:#00ff00;}
-.user-color-user3{color:#00ffff;}
-.user-color-user4{color:#ff00ff;}
-.user-color-user5{color:#ffa500;}
-</style>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
+  />
+  <title>App Braga</title>
+  <meta name="theme-color" content="#0f172a" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-<div class="container">
-<h2>🛒 Ricardo&Carol</h2>
+  <div class="mobile-shell">
+    <aside id="sidebar" class="mobile-sidebar">
+      <div class="sidebar-top">
+        <div>
+          <h2>App Braga</h2>
+          <p>Versão iPhone</p>
+        </div>
+        <button class="icon-btn close-btn" onclick="fecharMenu()">✕</button>
+      </div>
 
-<!-- Formulário de adicionar produtos -->
-<div class="card">
-  <input id="name" placeholder="Produto">
-  <input id="qty" type="number" placeholder="Quantidade">
-  <input id="price" type="number" placeholder="Preço">
-  <select id="store">
-    <option value="Action">Action</option>
-    <option value="Continente">Continente</option>
-    <option value="Lidl">Lidl</option>
-    <option value="Mercadona">Mercadona</option>
-    <option value="Pingo Doce">Pingo Doce</option>
-  </select>
-  <button onclick="addItem()">Adicionar</button>
-  <button style="background:#ff3b30" onclick="clearList()">Apagar Lista</button>
-  <button style="background:#ff9500" onclick="goHistory()">Histórico</button>
-</div>
+      <nav class="mobile-nav">
+        <button class="nav-link active" onclick="mostrarPagina('dashboard', this)">🏠 Dashboard</button>
+        <button class="nav-link" onclick="mostrarPagina('pistolas', this)">📦 Pistolas CK65</button>
+        <button class="nav-link" onclick="mostrarPagina('portas', this)">🌐 Portas Rede</button>
+        <button class="nav-link" onclick="mostrarPagina('users', this)">👤 Users</button>
+        <button class="nav-link" onclick="mostrarPagina('config', this)">⚙️ Configurações</button>
+      </nav>
+    </aside>
 
-<!-- Lista de produtos -->
-<div class="card">
-  <h3>Lista</h3>
-  <ul id="list"></ul>
-  <div class="total" id="total"></div>
-</div>
-</div>
+    <div id="overlay" class="overlay" onclick="fecharMenu()"></div>
 
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="firebaseConfig.js"></script>
-<script>
-let user = sessionStorage.getItem("user");
-if(!user){ window.location.href="login.html"; }
+    <main class="mobile-main">
+      <header class="mobile-topbar">
+        <button class="icon-btn" onclick="abrirMenu()">☰</button>
+        <div class="topbar-title-wrap">
+          <h1 id="pageTitle">Dashboard</h1>
+          <p class="subtitle">App Braga iPhone</p>
+        </div>
+        <label class="switch-mini">
+          <input type="checkbox" id="darkSwitch" />
+          <span>🌙</span>
+        </label>
+      </header>
 
-const itemsRef = db.collection("ricardoCarolApp").doc("lista").collection("items");
-const historyRef = db.collection("ricardoCarolApp").doc("lista").collection("history");
+      <!-- DASHBOARD -->
+      <section id="page-dashboard" class="page active-page">
+        <div class="mobile-stats-grid">
+          <div class="stat-card">
+            <span>Pistolas</span>
+            <strong id="countPistolasDashboard">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Portas</span>
+            <strong id="countPortasDashboard">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Users</span>
+            <strong id="countUsersDashboard">0</strong>
+          </div>
+        </div>
 
-// Adiciona produto
-function addItem(nameManual){
-  const name = nameManual||document.getElementById("name").value.trim();
-  const qty = parseInt(document.getElementById("qty").value)||1;
-  const price = parseFloat(document.getElementById("price").value)||0;
-  const store = document.getElementById("store").value;
-  if(!name) return;
-  itemsRef.add({name, qty, price, store, addedBy:user, date:new Date()});
-  if(!nameManual){ 
-    document.getElementById("name").value="";
-    document.getElementById("qty").value="";
-    document.getElementById("price").value="";
-  }
-}
+        <div class="panel">
+          <h3>Resumo rápido</h3>
+          <div class="dashboard-mobile-list">
+            <div class="dashboard-mini-card">
+              <span class="mini-label">Pistolas Reserva</span>
+              <strong id="countReservaDashboard">0</strong>
+            </div>
+            <div class="dashboard-mini-card">
+              <span class="mini-label">Portas Ocupadas</span>
+              <strong id="countPortasUsadasDashboard">0</strong>
+            </div>
+            <div class="dashboard-mini-card">
+              <span class="mini-label">Users com MO365</span>
+              <strong id="countUsersMO365Dashboard">0</strong>
+            </div>
+          </div>
+        </div>
+      </section>
 
-function clearList(){ if(confirm("Apagar toda a lista?")){ itemsRef.get().then(s=>s.forEach(d=>d.ref.delete())); } }
-function goHistory(){ window.location.href="history.html"; }
+      <!-- PISTOLAS -->
+      <section id="page-pistolas" class="page">
+        <div class="mobile-stats-grid">
+          <div class="stat-card">
+            <span>Total</span>
+            <strong id="countPistolas">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Turno Dia</span>
+            <strong id="countPistolasDia">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Reserva</span>
+            <strong id="countPistolasReserva">0</strong>
+          </div>
+        </div>
 
-itemsRef.onSnapshot(snap=>{
-  const list=document.getElementById("list");
-  list.innerHTML="";
-  let total=0;
-  snap.forEach(doc=>{
-    const item=doc.data();
-    total+=item.qty*item.price;
-    const li=document.createElement("li");
-    const colorClass="user-color-"+item.addedBy.replace(/ /g,"");
-    li.innerHTML=`<div class="flex">
-      <input type="checkbox" onclick="buyItem('${doc.id}')">
-      <strong>${item.qty}x ${item.name}</strong>
-      <span class="small">[${item.store}]</span>
-    </div>
-    <div class="flex">
-      <input type="number" value="${item.price}" onchange="editPrice('${doc.id}',this.value)">
-      <div class="small ${colorClass}">${item.addedBy}</div>
-    </div>`;
-    list.appendChild(li);
-  });
-  document.getElementById("total").innerText="Total: €"+total.toFixed(2);
-});
+        <div class="panel">
+          <div class="mobile-filters">
+            <input
+              id="searchPistolas"
+              type="text"
+              placeholder="Pesquisar pistolas..."
+              oninput="filtrarPistolas(this.value)"
+            />
+            <select id="filterTurnoPistolas" onchange="filtrarPistolasComFiltros()">
+              <option value="">Todos os turnos</option>
+              <option value="dia">Dia</option>
+            </select>
+            <select id="filterTipoPistolas" onchange="filtrarPistolasComFiltros()">
+              <option value="">Todos os tipos</option>
+              <option value="ativa">Ativa</option>
+              <option value="reserva">Reserva</option>
+            </select>
+          </div>
+        </div>
 
-// Marca como comprado e envia para histórico
-function buyItem(id){
-  itemsRef.doc(id).get().then(doc=>{
-    const itemData = doc.data();
-    historyRef.add({
-      name: itemData.name,
-      qty: itemData.qty,
-      price: itemData.price,
-      store: itemData.store,
-      addedBy: itemData.addedBy,
-      date: new Date()
-    });
-    itemsRef.doc(id).delete();
-  });
-}
-function editPrice(id,newPrice){ itemsRef.doc(id).update({price:parseFloat(newPrice)||0}); }
-</script>
+        <div id="listaPistolas" class="mobile-cards-list"></div>
+      </section>
+
+      <!-- PORTAS -->
+      <section id="page-portas" class="page">
+        <div class="mobile-stats-grid">
+          <div class="stat-card">
+            <span>Total</span>
+            <strong id="countPortas">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Ocupadas</span>
+            <strong id="countPortasUsadas">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Livres</span>
+            <strong id="countPortasLivres">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Sem User</span>
+            <strong id="countPortasSemUser">0</strong>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="mobile-filters">
+            <input
+              id="searchPortas"
+              type="text"
+              placeholder="Pesquisar portas..."
+              oninput="filtrarPortas(this.value)"
+            />
+            <select id="filterEstadoPortas" onchange="filtrarPortasComEstado()">
+              <option value="">Todos os estados</option>
+              <option value="ocupado">Ocupadas</option>
+              <option value="livre">Livres</option>
+              <option value="semUser">Sem user</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="listaPortas" class="mobile-cards-list"></div>
+      </section>
+
+      <!-- USERS -->
+      <section id="page-users" class="page">
+        <div class="mobile-stats-grid">
+          <div class="stat-card">
+            <span>Total</span>
+            <strong id="countUsers">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>MO365</span>
+            <strong id="countUsersMO365">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>Pistola</span>
+            <strong id="countUsersPistola">0</strong>
+          </div>
+          <div class="stat-card">
+            <span>TeamViewer</span>
+            <strong id="countUsersTV">0</strong>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="mobile-filters">
+            <input
+              id="searchUsers"
+              type="text"
+              placeholder="Pesquisar users..."
+              oninput="filtrarUsers(this.value)"
+            />
+            <select id="filterUsersMO365" onchange="filtrarUsersComFiltros()">
+              <option value="">MO365: Todos</option>
+              <option value="sim">Com MO365</option>
+              <option value="nao">Sem MO365</option>
+            </select>
+            <select id="filterUsersPistola" onchange="filtrarUsersComFiltros()">
+              <option value="">Pistola: Todos</option>
+              <option value="sim">Com Pistola</option>
+              <option value="nao">Sem Pistola</option>
+            </select>
+          </div>
+        </div>
+
+        <div id="listaUsers" class="mobile-cards-list"></div>
+      </section>
+
+      <!-- CONFIG -->
+      <section id="page-config" class="page">
+        <div class="panel">
+          <h3>Configurações</h3>
+          <div class="config-row">
+            <span>Dark mode</span>
+            <label class="switch-mini">
+              <input type="checkbox" id="darkSwitchConfig" />
+              <span>Ativar</span>
+            </label>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <div class="app-version-mini">v1.1.0</div>
+
+  <script src="app.js"></script>
 </body>
 </html>
