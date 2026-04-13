@@ -1,105 +1,17 @@
-<!DOCTYPE html>
-<html lang="pt">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Histórico - Ricardo&Carol</title>
-<link rel="stylesheet" href="style.css">
-<style>
-body{font-family:Arial,sans-serif;margin:20px;background:#1e1e1e;color:white;}
-h2{text-align:center;}
-.container{max-width:500px;margin:auto;background:#2b2b2b;padding:20px;border-radius:10px;}
-.card{background:#333;padding:15px;border-radius:8px;margin-bottom:15px;}
-button{padding:10px;margin:5px 0;font-size:16px;border:none;border-radius:5px;color:white;cursor:pointer;}
-button:hover{opacity:0.9;}
-ul{list-style:none;padding:0;}
-li{display:flex;justify-content:space-between;padding:8px;border-bottom:1px solid #444;}
-.flex{display:flex;justify-content:space-between;align-items:center;}
-.total{margin-top:10px;font-weight:bold;text-align:right;}
-input[type=number]{width:60px;}
-.small{font-size:12px;color:#ccc;margin-left:5px;}
-.user-color-user1{color:#ffd700;}
-.user-color-user2{color:#00ff00;}
-.user-color-user3{color:#00ffff;}
-.user-color-user4{color:#ff00ff;}
-.user-color-user5{color:#ffa500;}
-</style>
-</head>
-<body>
-<div class="container">
-<h2>📜 Histórico</h2>
-
-<!-- Botões -->
-<div class="card">
-  <button onclick="resetHistory()" style="background:#ff3b30;">Apagar Histórico</button>
-  <button onclick="backToList()" style="background:#ff9500; margin-top:5px;">Voltar à Lista</button>
-</div>
-
-<div id="historyContainer"></div>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
-<script src="firebaseConfig.js"></script>
-<script>
-// Login obrigatório
-let user = sessionStorage.getItem("user");
-if(!user){ window.location.href="login.html"; }
-
-const historyRef = db.collection("ricardoCarolApp").doc("lista").collection("history");
-
-// Volta para a lista
-function backToList(){ window.location.href="index.html"; }
-
-// Apaga todo o histórico
-function resetHistory(){
-  if(confirm("Tem certeza que quer apagar todo o histórico? Esta ação não pode ser desfeita.")){
-    historyRef.get().then(snapshot=>{
-      snapshot.forEach(doc => doc.ref.delete());
-    });
-    alert("Histórico apagado!");
-  }
-}
-
-// Carrega histórico agrupado por dia
-function loadHistory(){
-  historyRef.orderBy("date","desc").onSnapshot(snap=>{
-    const container=document.getElementById("historyContainer");
-    container.innerHTML="";
-    let grouped={};
-    snap.forEach(doc=>{
-      const item=doc.data();
-      let timestamp=item.date;
-      if(timestamp && timestamp.toDate) timestamp=timestamp.toDate();
-      else timestamp=new Date(timestamp);
-      const day = timestamp.toLocaleDateString();
-      if(!grouped[day]) grouped[day]=[];
-      grouped[day].push({id:doc.id,...item});
-    });
-
-    for(const day in grouped){
-      let sum=0;
-      let html=`<div class="card"><strong>${day}</strong><ul>`;
-      grouped[day].forEach(i=>{
-        sum += i.price*i.qty;
-        const colorClass="user-color-"+i.addedBy.replace(/ /g,"");
-        html+=`<li class="flex">
-          <span class="${colorClass}">${i.name} (${i.addedBy}) [${i.store}]</span>
-          <input type="number" value="${i.qty}" onchange="editHistoryQty('${i.id}',this.value)">
-          <input type="number" value="${i.price}" step="0.01" onchange="editHistoryPrice('${i.id}',this.value)">
-        </li>`;
-      });
-      html+=`</ul><div class="total">Total: €${sum.toFixed(2)}</div></div>`;
-      container.innerHTML+=html;
-    }
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no"><meta name="theme-color" content="#10131a"><title>Histórico - Ricardo&Carol</title><link rel="stylesheet" href="style.css"><link rel="manifest" href="manifest.json"></head><body><div class="container"><header class="topbar"><div class="brand"><small>Ricardo&Carol</small><h1>Histórico</h1><p class="subtle">Tudo o que já foi marcado como comprado.</p></div><div style="display:flex;gap:10px;align-items:center"><span id="userBadge" class="user-chip">👤</span><button id="themeToggle" class="icon-btn" aria-label="Alternar tema">🌙</button></div></header><main class="content"><section class="panel"><div class="panel-head"><div><h2>Comprados</h2><p class="helper">O histórico é gerado automaticamente a partir da lista.</p></div><button id="clearHistoryView" class="btn ghost">Atualizar vista</button></div><div id="historyEmpty" class="empty-state hidden"><div class="icon">📜</div><h3>Sem histórico</h3><p>Os itens aparecem aqui depois de serem marcados como comprados.</p></div><div id="historyContainer" class="section-stack"></div></section><section class="panel"><div class="panel-head"><div><h2>Conta</h2><p class="helper">Podes terminar a sessão aqui.</p></div></div><button id="logoutBtn" class="btn danger">Terminar sessão</button></section></main><nav class="bottom-nav"><a class="nav-link" data-page="home" href="index.html">Início</a><a class="nav-link" data-page="add" href="add.html">Adicionar</a><a class="nav-link" data-page="list" href="list.html">Lista</a><a class="nav-link" data-page="history" href="history.html">Histórico</a></nav></div><script src="shared.js"></script><script>
+attachGlobalUI('history');
+function renderHistory() {
+  const history = getHistory().sort((a,b) => new Date(b.doneAt) - new Date(a.doneAt));
+  const holder = document.getElementById('historyContainer');
+  holder.innerHTML = '';
+  document.getElementById('historyEmpty').classList.toggle('hidden', history.length !== 0);
+  history.forEach(item => {
+    const card = document.createElement('article');
+    card.className = 'history-card';
+    card.innerHTML = `<div class="item-title-row"><div class="item-title">${escapeHtml(item.name)}</div><span class="pill store">${escapeHtml(item.store)}</span></div><div class="history-meta"><span>Qtd: ${item.qty}</span><span>${escapeHtml(item.category)}</span><span>${escapeHtml(item.priority)}</span></div>${item.notes ? `<div class="item-notes">${escapeHtml(item.notes)}</div>` : ''}<div class="history-total">Comprado em: ${formatDate(item.doneAt)}</div>`;
+    holder.appendChild(card);
   });
 }
-
-// Edita quantidade e preço no histórico
-function editHistoryQty(id,newQty){ historyRef.doc(id).update({qty:parseInt(newQty)||1}); }
-function editHistoryPrice(id,newPrice){ historyRef.doc(id).update({price:parseFloat(newPrice)||0}); }
-
-loadHistory();
-</script>
-</body>
-</html>
+document.getElementById('clearHistoryView').addEventListener('click', renderHistory);
+renderHistory();
+</script></body></html>

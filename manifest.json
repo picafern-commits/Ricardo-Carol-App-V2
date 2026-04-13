@@ -1,11 +1,11 @@
 {
-  "name": "Lista de Compras Pro",
-  "short_name": "Compras",
-  "start_url": "./index.html",
+  "name": "Ricardo&Carol Compras",
+  "short_name": "Só Nos",
+  "start_url": "./login.html",
   "display": "standalone",
   "background_color": "#0b0f14",
   "theme_color": "#10131a",
-  "description": "App de lista de compras com lojas, categorias e highlight por loja.",
+  "description": "App de compras partilhada com login, início, adicionar, lista e histórico.",
   "icons": [
     {
       "src": "icon-192.png",

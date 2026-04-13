@@ -8,23 +8,41 @@
 <link rel="manifest" href="manifest.json">
 </head>
 <body>
-<div class="container">
-  <div class="card">
-    <h2>🛒 Ricardo&Carol</h2>
-    <h3>Escolhe o teu nome</h3>
-    <button onclick="login('Ricardo')">Ricardo</button>
-    <button onclick="login('Carol')">Carol</button>
-    <button onclick="login('Maria')">Maria</button>
-    <button onclick="login('Pedro')">Jorge</button>
+<div class="login-page">
+  <div class="login-shell">
+    <div class="login-top">
+      <div class="login-logo">💜</div>
+      <span class="eyebrow">Só Nos</span>
+      <h1>Bem-vindos</h1>
+      <p class="subtle">Escolhe o teu perfil para entrar na app de compras partilhada.</p>
+    </div>
+
+    <div class="login-pickers">
+      <button class="picker-btn" onclick="login('Ricardo')">
+        <div><div>Ricardo</div><div class="meta">Perfil principal</div></div>
+        <span>→</span>
+      </button>
+      <button class="picker-btn" onclick="login('Carol')">
+        <div><div>Carol</div><div class="meta">Perfil principal</div></div>
+        <span>→</span>
+      </button>
+      <button class="picker-btn" onclick="login('Maria')">
+        <div><div>Maria</div><div class="meta">Perfil secundário</div></div>
+        <span>→</span>
+      </button>
+      <button class="picker-btn" onclick="login('Jorge')">
+        <div><div>Jorge</div><div class="meta">Perfil secundário</div></div>
+        <span>→</span>
+      </button>
+    </div>
+
+    <div class="login-note">
+      A sessão fica guardada enquanto a app estiver aberta. Depois de entrares, vais ter várias páginas: início, adicionar, lista e histórico.
+    </div>
   </div>
 </div>
-
 <script>
-function login(name){
-  sessionStorage.setItem("user", name); // só dura enquanto a sessão estiver aberta
-  window.location.href="index.html";
-}
-
+function login(name){ sessionStorage.setItem('user', name); window.location.href='index.html'; }
 if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-worker.js'); }
 </script>
 </body>

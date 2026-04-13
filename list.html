@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><meta name="theme-color" content="#10131a"><title>Lista - Ricardo&Carol</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"></head><body><div class="container"><header class="topbar"><div class="brand"><small>Ricardo&Carol</small><h1>Lista de compras</h1><p class="subtle">Consulta, filtra e destaca a loja selecionada.</p></div><div style="display:flex;gap:10px;align-items:center"><span id="userBadge" class="user-chip">👤</span><button id="themeToggle" class="icon-btn" aria-label="Alternar tema">🌙</button></div></header><main class="content"><section class="panel"><div class="panel-head"><div><h2>Filtros</h2><p class="helper">Escolhe uma loja para highlight automático.</p></div><a href="add.html" class="badge">+ Adicionar</a></div><div class="filters-grid"><div class="field"><label for="filterStore">Loja</label><select id="filterStore"><option value="">Todas</option><option>Continente</option><option>Pingo Doce</option><option>Lidl</option><option>Mercadona</option><option>Auchan</option><option>Outra</option></select></div><div class="field"><label for="filterCategory">Categoria</label><select id="filterCategory"><option value="">Todas</option><option>Supermercado</option><option>Padaria</option><option>Farmácia</option><option>Casa</option><option>Bebidas</option><option>Outros</option></select></div><div class="field"><label for="searchInput">Pesquisar</label><input id="searchInput" type="text" placeholder="Pesquisar produto..."></div><div class="field"><label for="showMode">Mostrar</label><select id="showMode"><option value="all">Todos</option><option value="pending">Só por comprar</option><option value="done">Só comprados</option></select></div></div><div class="actions-row"><button id="clearDoneBtn" class="btn soft">Limpar comprados</button><button id="clearAllBtn" class="btn danger">Apagar tudo</button></div></section><section class="panel"><div class="list-head"><div><h2>A tua lista</h2><p class="helper" id="selectedStoreText">Sem loja selecionada.</p></div><span class="badge" id="visibleCount">0 itens</span></div><div id="emptyState" class="empty-state hidden"><div class="icon">🛒</div><h3>Sem itens na lista</h3><p>Adiciona o primeiro produto na página Adicionar.</p></div><div id="list" class="shopping-list"></div></section></main><nav class="bottom-nav"><a class="nav-link" data-page="home" href="index.html">Início</a><a class="nav-link" data-page="add" href="add.html">Adicionar</a><a class="nav-link" data-page="list" href="list.html">Lista</a><a class="nav-link" data-page="history" href="history.html">Histórico</a></nav></div><script src="shared.js"></script><script>
+attachGlobalUI('list');
+const storeEl = document.getElementById('filterStore');
+const catEl = document.getElementById('filterCategory');
+const searchEl = document.getElementById('searchInput');
+const modeEl = document.getElementById('showMode');
+function getFiltered() {
+  let items = getItems();
+  const store = storeEl.value, cat = catEl.value, search = searchEl.value.trim().toLowerCase(), mode = modeEl.value;
+  items = items.filter(item => {
+    if(store && item.store !== store) return false;
+    if(cat && item.category !== cat) return false;
+    if(search && !(`${item.name} ${item.notes||''} ${item.store} ${item.category}`.toLowerCase().includes(search))) return false;
+    if(mode === 'pending' && item.done) return false;
+    if(mode === 'done' && !item.done) return false;
+    return true;
+  });
+  const order = {Alta:0, Normal:1, Baixa:2};
+  items.sort((a,b) => a.done !== b.done ? a.done - b.done : order[a.priority] - order[b.priority]);
+  return items;
+}
+function render() {
+  const items = getFiltered(), store = storeEl.value, holder = document.getElementById('list');
+  holder.innerHTML = '';
+  document.getElementById('visibleCount').textContent = items.length + (items.length === 1 ? ' item' : ' itens');
+  document.getElementById('selectedStoreText').textContent = store ? ('Loja destacada: ' + store) : 'Sem loja selecionada.';
+  document.getElementById('emptyState').classList.toggle('hidden', items.length !== 0);
+  items.forEach(item => {
+    const card = document.createElement('article');
+    card.className = `item-card ${item.done ? 'done' : ''} ${store && item.store === store ? 'highlight' : ''}`;
+    card.innerHTML = `<button class="check-btn" aria-label="Marcar comprado"></button><div><div class="item-title-row"><div class="item-title">${escapeHtml(item.name)}</div><span class="pill store">${escapeHtml(item.store)}</span><span class="pill ${item.priority === 'Alta' ? 'high' : item.priority === 'Normal' ? 'normal' : 'low'}">${escapeHtml(item.priority)}</span></div><div class="item-meta"><span>Qtd: ${item.qty}</span><span>${escapeHtml(item.category)}</span><span>${item.done ? 'Comprado' : 'Por comprar'}</span></div>${item.notes ? `<div class="item-notes">${escapeHtml(item.notes)}</div>` : ''}</div><div class="item-actions"><button class="mini-btn toggle">${item.done ? '↺' : '✓'}</button><button class="mini-btn delete">🗑</button></div>`;
+    card.querySelector('.check-btn').addEventListener('click', () => { toggleDone(item.id); render(); });
+    card.querySelector('.toggle').addEventListener('click', () => { toggleDone(item.id); render(); });
+    card.querySelector('.delete').addEventListener('click', () => { removeItem(item.id); render(); });
+    holder.appendChild(card);
+  });
+}
+[storeEl, catEl, searchEl, modeEl].forEach(el => el.addEventListener(el.tagName === 'INPUT' ? 'input' : 'change', render));
+document.getElementById('clearDoneBtn').addEventListener('click', () => { clearDone(); render(); });
+document.getElementById('clearAllBtn').addEventListener('click', () => { clearAll(); render(); });
+render();
+</script></body></html>
