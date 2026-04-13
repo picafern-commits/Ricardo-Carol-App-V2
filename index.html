@@ -1,21 +1,138 @@
-<!DOCTYPE html><html lang="pt"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><meta name="theme-color" content="#10131a"><title>Início - Ricardo&Carol</title><link rel="manifest" href="manifest.json"><link rel="stylesheet" href="style.css"></head><body><div class="container"><header class="topbar"><div class="brand"><small>Ricardo&Carol</small><h1>Início</h1><p class="subtle">Resumo rápido da vossa lista partilhada.</p></div><div style="display:flex;gap:10px;align-items:center"><span id="userBadge" class="user-chip">👤</span><button id="themeToggle" class="icon-btn" aria-label="Alternar tema">🌙</button></div></header><main class="content"><section class="hero-card"><div class="hero-grid"><div><span class="eyebrow">Dashboard</span><h2 class="hero-title">Agora a app está dividida em páginas para ficar mais organizada.</h2><p class="subtle">Usa o início para ver o estado geral, adicionar mais rápido e entrar diretamente nas páginas certas.</p><div class="hero-badges"><span class="badge" id="homeStoreBadge">Sem destaque de loja</span><span class="mini-badge" id="homePendingBadge">0 por comprar</span><span class="mini-badge" id="homeDoneBadge">0 comprados</span></div></div><div class="stats-grid"><div class="stat-card"><span>Total</span><strong id="statTotal">0</strong></div><div class="stat-card"><span>Comprados</span><strong id="statDone">0</strong></div><div class="stat-card"><span>Faltam</span><strong id="statPending">0</strong></div></div></div></section><section class="quick-grid"><article class="quick-card"><h3>Adicionar produto</h3><p>Vai para uma página limpa só para registar itens.</p><a class="btn primary" href="add.html">Abrir</a></article><article class="quick-card"><h3>Ver lista</h3><p>Consulta, filtra, destaca a loja e marca comprados.</p><a class="btn soft" href="list.html">Abrir</a></article><article class="quick-card"><h3>Histórico</h3><p>Vê tudo o que já foi comprado.</p><a class="btn ghost" href="history.html">Abrir</a></article></section><section class="panel"><div class="panel-head"><div><h2>Resumo recente</h2><p class="helper">Os últimos itens aparecem aqui para acesso rápido.</p></div><a href="list.html" class="badge">Abrir lista completa</a></div><div id="recentItems" class="shopping-list"></div><div id="recentEmpty" class="empty-state hidden"><div class="icon">🛒</div><h3>Sem itens ainda</h3><p>Adiciona produtos na página Adicionar.</p></div></section><section class="panel"><div class="panel-head"><div><h2>Conta</h2><p class="helper">Podes trocar de perfil quando quiseres.</p></div></div><div style="display:flex;gap:10px;flex-wrap:wrap"><button id="logoutBtn" class="btn danger">Terminar sessão</button><button class="btn ghost" onclick="installApp()">Instalar no iPhone</button></div></section></main><nav class="bottom-nav"><a class="nav-link" data-page="home" href="index.html">Início</a><a class="nav-link" data-page="add" href="add.html">Adicionar</a><a class="nav-link" data-page="list" href="list.html">Lista</a><a class="nav-link" data-page="history" href="history.html">Histórico</a></nav></div><script src="shared.js"></script><script>
-attachGlobalUI('home');
-const items = getItems();
-const s = stats(items);
-document.getElementById('statTotal').textContent = s.total;
-document.getElementById('statDone').textContent = s.done;
-document.getElementById('statPending').textContent = s.pending;
-document.getElementById('homePendingBadge').textContent = s.pending + ' por comprar';
-document.getElementById('homeDoneBadge').textContent = s.done + ' comprados';
-const firstStore = (items.find(i => !i.done) || items[0]);
-document.getElementById('homeStoreBadge').textContent = firstStore ? ('Loja em foco: ' + firstStore.store) : 'Sem destaque de loja';
-const recent = items.slice(0,4);
-const holder = document.getElementById('recentItems');
-document.getElementById('recentEmpty').classList.toggle('hidden', recent.length !== 0);
-recent.forEach(item => {
-  const card = document.createElement('article');
-  card.className = 'item-card ' + (item.done ? 'done' : '');
-  card.innerHTML = `<button class="check-btn"></button><div><div class="item-title-row"><div class="item-title">${escapeHtml(item.name)}</div><span class="pill store">${escapeHtml(item.store)}</span></div><div class="item-meta"><span>Qtd: ${item.qty}</span><span>${escapeHtml(item.category)}</span><span>${item.done ? 'Comprado' : 'Por comprar'}</span></div></div><div class="item-actions"><a class="mini-btn" href="list.html">→</a></div>`;
-  holder.appendChild(card);
-});
-</script></body></html>
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Início - Ricardo & Carol</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body data-page="dashboard" data-requires-login="true">
+
+  <div class="app-shell">
+    <aside class="sidebar">
+      <div class="brand-card">
+        <p class="eyebrow">APP RICARDO & CAROL</p>
+        <h1>Lista<br>de Compras</h1>
+        <p>Layout adaptado ao estilo da App Braga, com navegação mais profissional.</p>
+
+        <div class="user-chip">
+          <div class="avatar" data-user-initial>U</div>
+          <div>
+            <strong data-user-name>Utilizador</strong>
+            <div style="color:var(--muted);font-size:13px">Sessão ativa</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="side-nav">
+        <a class="nav-link" data-nav="dashboard" href="index.html">🏠 Início</a>
+        <a class="nav-link" data-nav="add" href="add.html">➕ Adicionar</a>
+        <a class="nav-link" data-nav="list" href="list.html">🧺 Lista</a>
+        <a class="nav-link" data-nav="history" href="history.html">📜 Histórico</a>
+      </nav>
+
+      <div class="side-footer">
+        <button class="side-btn" data-theme-toggle>🌙</button>
+        <button class="side-btn danger" data-logout>Sair</button>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="topbar">
+        <div class="page-title">
+          <h2 data-page-title>Título</h2>
+          <p data-page-sub>Subtítulo</p>
+        </div>
+        <div class="top-actions">
+          <button class="icon-btn" data-theme-toggle>🌙</button>
+        </div>
+      </header>
+
+      <div class="grid">
+        <section class="hero-card">
+          <div>
+            <h3>Dashboard da lista partilhada</h3>
+            <p>Esta página centraliza o essencial: visão geral, atalhos rápidos e os itens mais recentes. O estilo foi alinhado com a identidade visual da App Braga.</p>
+            <div class="hero-actions">
+              <a class="primary-btn" href="add.html">Adicionar produto</a>
+              <a class="secondary-btn" href="list.html">Ver lista completa</a>
+              <a class="ghost-btn" href="history.html">Abrir histórico</a>
+            </div>
+          </div>
+          <div class="panel" style="padding:16px">
+            <div class="panel-head">
+              <div>
+                <h3>Estado rápido</h3>
+                <p>Resumo atual da lista</p>
+              </div>
+              <span class="badge">Live</span>
+            </div>
+            <div id="statsGrid" class="stats-grid"></div>
+          </div>
+        </section>
+
+        <section class="split-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h3>Atalhos rápidos</h3>
+                <p>Navegação simples entre áreas</p>
+              </div>
+            </div>
+            <div class="quick-grid three">
+              <a class="secondary-btn" href="add.html">➕ Adicionar</a>
+              <a class="secondary-btn" href="list.html">🧺 Lista</a>
+              <a class="secondary-btn" href="history.html">📜 Histórico</a>
+            </div>
+          </section>
+
+          <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h3>Perfil ativo</h3>
+                <p>Quem está a usar agora</p>
+              </div>
+            </div>
+            <div class="user-chip" style="margin-top:0">
+              <div class="avatar" data-user-initial>U</div>
+              <div>
+                <strong data-user-name>Utilizador</strong>
+                <div style="color:var(--muted);font-size:13px">Lista partilhada ativa</div>
+              </div>
+            </div>
+          </section>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div>
+              <h3>Itens recentes</h3>
+              <p>Últimos produtos adicionados</p>
+            </div>
+            <a class="badge" href="list.html">Abrir lista</a>
+          </div>
+          <div id="recentList" class="shopping-list"></div>
+        </section>
+      </div>
+
+    </main>
+  </div>
+
+  <nav class="bottom-nav">
+    <div class="bottom-nav-grid">
+      <a class="bottom-link" data-nav="dashboard" href="index.html">Início</a>
+      <a class="bottom-link" data-nav="add" href="add.html">Adicionar</a>
+      <a class="bottom-link" data-nav="list" href="list.html">Lista</a>
+      <a class="bottom-link" data-nav="history" href="history.html">Histórico</a>
+    </div>
+  </nav>
+  <script src="shared.js"></script>
+</body>
+</html>
+
+<script>
+  fillShell('Início','Visão geral da tua lista partilhada.');
+  renderStats('statsGrid');
+  renderRecentList('recentList');
+</script>

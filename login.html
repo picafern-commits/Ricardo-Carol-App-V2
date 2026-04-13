@@ -1,49 +1,75 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Login - Ricardo&Carol</title>
-<link rel="stylesheet" href="style.css">
-<link rel="manifest" href="manifest.json">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <title>Entrar - Ricardo & Carol</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
 </head>
-<body>
-<div class="login-page">
-  <div class="login-shell">
-    <div class="login-top">
-      <div class="login-logo">💜</div>
-      <span class="eyebrow">Só Nos</span>
-      <h1>Bem-vindos</h1>
-      <p class="subtle">Escolhe o teu perfil para entrar na app de compras partilhada.</p>
-    </div>
+<body class="login-body">
+  <div class="login-wrap">
+    <section class="login-brand">
+      <div>
+        <div class="logo-badge">APP RICARDO & CAROL</div>
+        <h1 class="login-title">Lista partilhada com visual inspirado na App Braga.</h1>
+        <p class="login-sub">Mais organizada, mais limpa e com páginas separadas para Início, Adicionar, Lista e Histórico.</p>
+        <div class="feature-grid">
+          <div class="feature-card"><strong>4</strong><span>Páginas principais</span></div>
+          <div class="feature-card"><strong>100%</strong><span>Pronta para iPhone web app</span></div>
+          <div class="feature-card"><strong>Loja</strong><span>Highlight automático</span></div>
+          <div class="feature-card"><strong>Histórico</strong><span>Compras concluídas</span></div>
+        </div>
+      </div>
+      <div class="info-strip">Entra com o teu perfil para aceder à lista partilhada.</div>
+    </section>
 
-    <div class="login-pickers">
-      <button class="picker-btn" onclick="login('Ricardo')">
-        <div><div>Ricardo</div><div class="meta">Perfil principal</div></div>
-        <span>→</span>
-      </button>
-      <button class="picker-btn" onclick="login('Carol')">
-        <div><div>Carol</div><div class="meta">Perfil principal</div></div>
-        <span>→</span>
-      </button>
-      <button class="picker-btn" onclick="login('Maria')">
-        <div><div>Maria</div><div class="meta">Perfil secundário</div></div>
-        <span>→</span>
-      </button>
-      <button class="picker-btn" onclick="login('Jorge')">
-        <div><div>Jorge</div><div class="meta">Perfil secundário</div></div>
-        <span>→</span>
-      </button>
-    </div>
+    <section class="login-panel">
+      <div class="panel-top">
+        <div>
+          <div class="logo-badge">LOGIN</div>
+        </div>
+        <button class="theme-toggle" data-theme-toggle>🌙</button>
+      </div>
 
-    <div class="login-note">
-      A sessão fica guardada enquanto a app estiver aberta. Depois de entrares, vais ter várias páginas: início, adicionar, lista e histórico.
-    </div>
+      <div class="login-card">
+        <h2>Escolhe o teu nome</h2>
+        <p>Entra na app e continua exatamente onde ficaram.</p>
+
+        <div class="user-grid">
+          <button class="user-btn" onclick="login('Ricardo')">
+            <div class="avatar">R</div>
+            <div><strong>Ricardo</strong><span>Perfil principal</span></div>
+          </button>
+          <button class="user-btn" onclick="login('Carol')">
+            <div class="avatar">C</div>
+            <div><strong>Carol</strong><span>Perfil principal</span></div>
+          </button>
+          <button class="user-btn" onclick="login('Maria')">
+            <div class="avatar">M</div>
+            <div><strong>Maria</strong><span>Perfil extra</span></div>
+          </button>
+          <button class="user-btn" onclick="login('Jorge')">
+            <div class="avatar">J</div>
+            <div><strong>Jorge</strong><span>Perfil extra</span></div>
+          </button>
+        </div>
+
+        <div class="install-note">
+          No iPhone, abre depois no Safari e usa <strong>Adicionar ao ecrã principal</strong> para ficar como app.
+        </div>
+      </div>
+    </section>
   </div>
-</div>
-<script>
-function login(name){ sessionStorage.setItem('user', name); window.location.href='index.html'; }
-if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-worker.js'); }
-</script>
+
+  <script src="shared.js"></script>
+  <script>
+    applyTheme();
+    function login(name){
+      sessionStorage.setItem('user', name);
+      window.location.href = 'index.html';
+    }
+    if('serviceWorker' in navigator){ navigator.serviceWorker.register('service-worker.js'); }
+  </script>
 </body>
 </html>

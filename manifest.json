@@ -1,11 +1,11 @@
 {
-  "name": "Ricardo&Carol Compras",
-  "short_name": "Só Nos",
+  "name": "Ricardo & Carol - Lista",
+  "short_name": "RicardoCarol",
   "start_url": "./login.html",
   "display": "standalone",
-  "background_color": "#0b0f14",
-  "theme_color": "#10131a",
-  "description": "App de compras partilhada com login, início, adicionar, lista e histórico.",
+  "background_color": "#0b1220",
+  "theme_color": "#0b1220",
+  "description": "Lista de compras partilhada com layout inspirado na App Braga.",
   "icons": [
     {
       "src": "icon-192.png",
