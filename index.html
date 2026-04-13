@@ -2,232 +2,134 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover"
-  />
-  <title>App Braga</title>
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="theme-color" content="#10131a" />
+  <title>Lista de Compras Pro</title>
   <link rel="manifest" href="manifest.json" />
-  <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
-  <link rel="apple-touch-icon" href="icon-192.png" />
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div class="mobile-shell">
-    <aside id="sidebar" class="mobile-sidebar">
-      <div class="sidebar-top">
-        <div>
-          <h2>App Braga</h2>
-          <p>Versão iPhone</p>
-        </div>
-        <button class="icon-btn close-btn" onclick="fecharMenu()">✕</button>
+  <div class="app-shell">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">APP COMPRAS</p>
+        <h1>Lista de Compras</h1>
       </div>
+      <div class="topbar-actions">
+        <button id="themeToggle" class="icon-btn" aria-label="Alternar tema">🌙</button>
+      </div>
+    </header>
 
-      <nav class="mobile-nav">
-        <button class="nav-link active" onclick="mostrarPagina('dashboard', this)">🏠 Dashboard</button>
-        <button class="nav-link" onclick="mostrarPagina('pistolas', this)">📦 Pistolas CK65</button>
-        <button class="nav-link" onclick="mostrarPagina('portas', this)">🌐 Portas Rede</button>
-        <button class="nav-link" onclick="mostrarPagina('users', this)">👤 Users</button>
-        <button class="nav-link" onclick="mostrarPagina('config', this)">⚙️ Configurações</button>
-      </nav>
-    </aside>
-
-    <div id="overlay" class="overlay" onclick="fecharMenu()"></div>
-
-    <main class="mobile-main">
-      <header class="mobile-topbar">
-        <button class="icon-btn" onclick="abrirMenu()">☰</button>
-        <div class="topbar-title-wrap">
-          <h1 id="pageTitle">Dashboard</h1>
-          <p class="subtitle">App Braga iPhone</p>
+    <main class="content">
+      <section class="hero-card">
+        <div class="hero-text">
+          <p class="hero-kicker">Organização rápida</p>
+          <h2>Compras por loja, categoria e prioridade</h2>
+          <p>Marca produtos, destaca a loja selecionada e acompanha o progresso da tua lista.</p>
         </div>
-        <label class="switch-mini">
-          <input type="checkbox" id="darkSwitch" />
-          <span>🌙</span>
-        </label>
-      </header>
+        <div class="hero-stats">
+          <div class="stat-card"><span>Total</span><strong id="totalItems">0</strong></div>
+          <div class="stat-card"><span>Comprados</span><strong id="doneItems">0</strong></div>
+          <div class="stat-card"><span>Faltam</span><strong id="pendingItems">0</strong></div>
+        </div>
+      </section>
 
-      <!-- DASHBOARD -->
-      <section id="page-dashboard" class="page active-page">
-        <div class="mobile-stats-grid">
-          <div class="stat-card">
-            <span>Pistolas</span>
-            <strong id="countPistolasDashboard">0</strong>
-          </div>
-          <div class="stat-card">
-            <span>Portas</span>
-            <strong id="countPortasDashboard">0</strong>
-          </div>
-          <div class="stat-card">
-            <span>Users</span>
-            <strong id="countUsersDashboard">0</strong>
-          </div>
+      <section class="panel">
+        <div class="panel-header">
+          <div><h3>Adicionar produto</h3><p>Regista tudo antes de ires às compras.</p></div>
         </div>
 
-        <div class="panel">
-          <h3>Resumo rápido</h3>
-          <div class="dashboard-mobile-list">
-            <div class="dashboard-mini-card">
-              <span class="mini-label">Pistolas Reserva</span>
-              <strong id="countReservaDashboard">0</strong>
-            </div>
-            <div class="dashboard-mini-card">
-              <span class="mini-label">Portas Ocupadas</span>
-              <strong id="countPortasUsadasDashboard">0</strong>
-            </div>
-            <div class="dashboard-mini-card">
-              <span class="mini-label">Users com MO365</span>
-              <strong id="countUsersMO365Dashboard">0</strong>
-            </div>
+        <div class="form-grid">
+          <div class="field">
+            <label for="itemInput">Produto</label>
+            <input id="itemInput" type="text" placeholder="Ex: Leite" />
+          </div>
+          <div class="field field-small">
+            <label for="qtyInput">Qtd</label>
+            <input id="qtyInput" type="number" min="1" value="1" />
+          </div>
+          <div class="field">
+            <label for="categoryInput">Categoria</label>
+            <select id="categoryInput">
+              <option>Supermercado</option><option>Padaria</option><option>Farmácia</option>
+              <option>Casa</option><option>Bebidas</option><option>Outros</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="storeInput">Loja</label>
+            <select id="storeInput">
+              <option>Continente</option><option>Pingo Doce</option><option>Lidl</option>
+              <option>Mercadona</option><option>Auchan</option><option>Outra</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="priorityInput">Prioridade</label>
+            <select id="priorityInput">
+              <option value="Alta">Alta</option><option value="Normal" selected>Normal</option><option value="Baixa">Baixa</option>
+            </select>
+          </div>
+          <div class="field field-full">
+            <label for="notesInput">Notas</label>
+            <input id="notesInput" type="text" placeholder="Ex: sem lactose, promoção, marca preferida..." />
+          </div>
+        </div>
+
+        <div class="actions-row">
+          <button id="addBtn" class="primary-btn">Adicionar à lista</button>
+          <button id="clearDoneBtn" class="secondary-btn">Limpar comprados</button>
+          <button id="clearAllBtn" class="danger-btn">Apagar tudo</button>
+        </div>
+      </section>
+
+      <section class="panel">
+        <div class="panel-header">
+          <div><h3>Filtros</h3><p>Seleciona uma loja para highlight automático.</p></div>
+        </div>
+        <div class="filters-grid">
+          <div class="field">
+            <label for="filterStore">Loja</label>
+            <select id="filterStore">
+              <option value="">Todas</option><option>Continente</option><option>Pingo Doce</option>
+              <option>Lidl</option><option>Mercadona</option><option>Auchan</option><option>Outra</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="filterCategory">Categoria</label>
+            <select id="filterCategory">
+              <option value="">Todas</option><option>Supermercado</option><option>Padaria</option>
+              <option>Farmácia</option><option>Casa</option><option>Bebidas</option><option>Outros</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="searchInput">Pesquisar</label>
+            <input id="searchInput" type="text" placeholder="Pesquisar produto..." />
+          </div>
+          <div class="field">
+            <label for="showMode">Mostrar</label>
+            <select id="showMode">
+              <option value="all">Todos</option><option value="pending">Só por comprar</option><option value="done">Só comprados</option>
+            </select>
           </div>
         </div>
       </section>
 
-      <!-- PISTOLAS -->
-      <section id="page-pistolas" class="page">
-        <div class="mobile-stats-grid">
-          <div class="stat-card">
-            <span>Total</span>
-            <strong id="countPistolas">0</strong>
-          </div>
-          <div class="stat-card">
-            <span>Turno Dia</span>
-            <strong id="countPistolasDia">0</strong>
-          </div>
-          <div class="stat-card">
-            <span>Reserva</span>
-            <strong id="countPistolasReserva">0</strong>
-          </div>
+      <section class="panel">
+        <div class="list-header">
+          <div><h3>A tua lista</h3><p id="selectedStoreText">Sem loja selecionada.</p></div>
+          <span class="badge" id="visibleCount">0 itens</span>
         </div>
-
-        <div class="panel">
-          <div class="mobile-filters">
-            <input
-              id="searchPistolas"
-              type="text"
-              placeholder="Pesquisar pistolas..."
-              oninput="filtrarPistolas(this.value)"
-            />
-            <select id="filterTurnoPistolas" onchange="filtrarPistolasComFiltros()">
-              <option value="">Todos os turnos</option>
-              <option value="dia">Dia</option>
-            </select>
-            <select id="filterTipoPistolas" onchange="filtrarPistolasComFiltros()">
-              <option value="">Todos os tipos</option>
-              <option value="ativa">Ativa</option>
-              <option value="reserva">Reserva</option>
-            </select>
-          </div>
+        <div id="emptyState" class="empty-state hidden">
+          <div class="empty-icon">🛒</div><h4>Sem itens na lista</h4><p>Adiciona o primeiro produto para começar.</p>
         </div>
-
-        <div id="listaPistolas" class="mobile-cards-list"></div>
-      </section>
-
-      <!-- PORTAS -->
-      <section id="page-portas" class="page">
-        <div class="mobile-stats-grid">
-          <div class="stat-card">
-            <span>Total</span>
-            <strong id="countPortas">0</strong>
-          </div>
-          <div class="stat-card">
-            <span>Ocupadas</span>
-            <strong id="countPortasUsadas">0</strong>
-          </div>
-          <div class="stat-card">
-            <span>Livres</span>
-            <strong id="countPortasLivres">0</strong>
-          </div>
-          <div class="stat-card">
-            <span>Sem User</span>
-            <strong id="countPortasSemUser">0</strong>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="mobile-filters">
-            <input
-              id="searchPortas"
-              type="text"
-              placeholder="Pesquisar portas..."
-              oninput="filtrarPortas(this.value)"
-            />
-            <select id="filterEstadoPortas" onchange="filtrarPortasComEstado()">
-              <option value="">Todos os estados</option>
-              <option value="ocupado">Ocupadas</option>
-              <option value="livre">Livres</option>
-              <option value="semUser">Sem user</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="listaPortas" class="mobile-cards-list"></div>
-      </section>
-
-      <!-- USERS -->
-      <section id="page-users" class="page">
-        <div class="mobile-stats-grid">
-          <div class="stat-card">
-            <span>Total</span>
-            <strong id="countUsers">0</strong>
-          </div>
-          <div class="stat-card">
-            <span>MO365</span>
-            <strong id="countUsersMO365">0</strong>
-          </div>
-          <div class="stat-card">
-            <span>Pistola</span>
-            <strong id="countUsersPistola">0</strong>
-          </div>
-          <div class="stat-card">
-            <span>TeamViewer</span>
-            <strong id="countUsersTV">0</strong>
-          </div>
-        </div>
-
-        <div class="panel">
-          <div class="mobile-filters">
-            <input
-              id="searchUsers"
-              type="text"
-              placeholder="Pesquisar users..."
-              oninput="filtrarUsers(this.value)"
-            />
-            <select id="filterUsersMO365" onchange="filtrarUsersComFiltros()">
-              <option value="">MO365: Todos</option>
-              <option value="sim">Com MO365</option>
-              <option value="nao">Sem MO365</option>
-            </select>
-            <select id="filterUsersPistola" onchange="filtrarUsersComFiltros()">
-              <option value="">Pistola: Todos</option>
-              <option value="sim">Com Pistola</option>
-              <option value="nao">Sem Pistola</option>
-            </select>
-          </div>
-        </div>
-
-        <div id="listaUsers" class="mobile-cards-list"></div>
-      </section>
-
-      <!-- CONFIG -->
-      <section id="page-config" class="page">
-        <div class="panel">
-          <h3>Configurações</h3>
-          <div class="config-row">
-            <span>Dark mode</span>
-            <label class="switch-mini">
-              <input type="checkbox" id="darkSwitchConfig" />
-              <span>Ativar</span>
-            </label>
-          </div>
-        </div>
+        <div id="list" class="shopping-list"></div>
       </section>
     </main>
+
+    <nav class="bottom-nav">
+      <button class="nav-item active">Lista</button>
+      <button class="nav-item" id="installBtn">Instalar</button>
+    </nav>
   </div>
-
-  <div class="app-version-mini">v1.1.0</div>
-
   <script src="app.js"></script>
 </body>
 </html>
