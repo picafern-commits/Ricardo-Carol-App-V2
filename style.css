@@ -207,3 +207,49 @@ body.light .bottom-nav{background:rgba(255,255,255,.86)}
 .login-card{max-width:520px;margin:0 auto}
 .user-grid{grid-template-columns:1fr 1fr}
 .login-panel{display:flex;flex-direction:column;justify-content:center}
+
+
+html, body{
+  background:#0b1220;
+}
+
+body{
+  padding-top: env(safe-area-inset-top);
+}
+
+.login-body{
+  padding-top:max(24px, env(safe-area-inset-top));
+  background:
+    radial-gradient(circle at top center, rgba(108,99,255,.16), transparent 35%),
+    linear-gradient(180deg, #07101f 0%, #0b1220 100%);
+}
+
+.login-brand{
+  min-height:auto;
+}
+
+.login-title{
+  font-size:48px;
+  line-height:1.02;
+  max-width:420px;
+}
+
+.login-sub{
+  max-width:340px;
+  margin-top:14px;
+}
+
+@media (max-width:760px){
+  .login-wrap{
+    grid-template-columns:1fr;
+  }
+  .login-brand{
+    padding:22px;
+  }
+  .login-title{
+    font-size:34px;
+  }
+  .login-sub{
+    font-size:15px;
+  }
+}
