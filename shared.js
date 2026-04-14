@@ -335,3 +335,92 @@ document.addEventListener('DOMContentLoaded', () => {
     seedItemsIfEmpty();
   }
 });
+
+
+function renderSplitListPage(){
+  const root = document.getElementById('shoppingListSplit');
+  if(!root){
+    renderListPage();
+    return;
+  }
+  const filterStore = document.getElementById('filterStore')?.value || '';
+  const filterCategory = document.getElementById('filterCategory')?.value || '';
+  const search = (document.getElementById('searchInput')?.value || '').trim().toLowerCase();
+  const mode = document.getElementById('showMode')?.value || 'all';
+
+  let list = loadItems().filter(item => {
+    if(filterStore && item.store !== filterStore) return false;
+    if(filterCategory && item.category !== filterCategory) return false;
+    if(search && !`${item.name} ${item.notes} ${item.category} ${item.store}`.toLowerCase().includes(search)) return false;
+    if(mode === 'pending' && item.done) return false;
+    if(mode === 'done' && !item.done) return false;
+    return true;
+  });
+
+  list = sortItems(list);
+
+  const pending = list.filter(item => !item.done);
+  const done = list.filter(item => item.done);
+
+  const count = document.getElementById('visibleCount');
+  const selected = document.getElementById('selectedStoreText');
+  if(count) count.textContent = `${list.length} ${list.length === 1 ? 'item' : 'itens'}`;
+  if(selected) selected.textContent = filterStore ? `Loja destacada: ${filterStore}` : 'Sem loja selecionada.';
+
+  const cardHtml = (item) => `
+    <article class="item-card fade-in-up ${item.done ? 'done' : ''} ${filterStore && item.store === filterStore ? 'highlight' : ''}">
+      <button class="check-btn" onclick="toggleDone('${item.id}')"></button>
+      <div class="item-main">
+        <div class="item-title-row">
+          <div class="item-title">${esc(item.name)}</div>
+          <span class="pill store">${esc(item.store)}</span>
+          <span class="pill ${priorityClass(item.priority)}">${esc(item.priority)}</span>
+        </div>
+        <div class="item-meta">
+          <span>Qtd: ${item.qty}</span>
+          <span>${esc(item.category)}</span>
+          <span>${item.done ? 'Comprado' : 'Por comprar'}</span>
+        </div>
+        ${item.notes ? `<div class="item-notes">${esc(item.notes)}</div>` : ''}
+      </div>
+      <div class="item-actions">
+        <button class="mini-btn" onclick="toggleDone('${item.id}')">${item.done ? '↺' : '✓'}</button>
+        <button class="mini-btn delete" onclick="removeItem('${item.id}')">🗑</button>
+      </div>
+    </article>
+  `;
+
+  if(!list.length){
+    root.innerHTML = `<div class="empty-state"><div class="empty-icon">🧺</div><h4>Sem resultados</h4><p>Não há itens para os filtros escolhidos.</p></div>`;
+    return;
+  }
+
+  root.innerHTML = `
+    <section class="panel">
+      <div class="section-label">
+        <h4>Por comprar</h4>
+        <span>${pending.length} ${pending.length === 1 ? 'item' : 'itens'}</span>
+      </div>
+      <div class="shopping-list">
+        ${pending.length ? pending.map(cardHtml).join('') : `<div class="empty-state"><p>Não tens itens pendentes.</p></div>`}
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="section-label">
+        <h4>Comprados</h4>
+        <span>${done.length} ${done.length === 1 ? 'item' : 'itens'}</span>
+      </div>
+      <div class="shopping-list">
+        ${done.length ? done.map(cardHtml).join('') : `<div class="empty-state"><p>Ainda não marcaste nenhum item.</p></div>`}
+      </div>
+    </section>
+  `;
+}
+
+const _oldRenderListPage = renderListPage;
+renderListPage = function(){
+  const split = document.getElementById('shoppingListSplit');
+  if(split) return renderSplitListPage();
+  return _oldRenderListPage();
+}
