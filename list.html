@@ -2,23 +2,23 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <title>Lista - Ricardo & Carol</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <title>Lista - Só Nós</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Só Nós">
+  <meta name="theme-color" content="#070b14">
   <link rel="apple-touch-icon" href="icon-180.png">
 </head>
 <body data-page="list" data-requires-login="true">
-
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand-card">
-        <p class="eyebrow">APP RICARDO & CAROL</p>
-        <h1>Lista<br>de Compras</h1>
-        <p>Layout adaptado ao estilo da App Braga, com navegação mais profissional.</p>
-
+        <p class="eyebrow">SÓ NÓS</p>
+        <h1>Lista<br>Principal</h1>
+        <p>Filtra e organiza tudo com um aspeto mais premium.</p>
         <div class="user-chip">
           <div class="avatar" data-user-initial>U</div>
           <div>
@@ -43,8 +43,8 @@
     <main class="main">
       <header class="topbar">
         <div class="page-title">
-          <h2 data-page-title>Título</h2>
-          <p data-page-sub>Subtítulo</p>
+          <h2 data-page-title>Lista</h2>
+          <p data-page-sub>Todos os produtos guardados.</p>
         </div>
         <div class="top-actions"></div>
       </header>
@@ -53,8 +53,8 @@
         <section class="panel">
           <div class="panel-head">
             <div>
-              <h3>Filtros da lista</h3>
-              <p>Escolhe uma loja para highlight automático.</p>
+              <h3>Filtros</h3>
+              <p>Seleciona uma loja para highlight automático.</p>
             </div>
             <span class="badge" id="visibleCount">0 itens</span>
           </div>
@@ -109,14 +109,14 @@
         <section class="panel">
           <div class="panel-head">
             <div>
-              <h3>Lista principal</h3>
+              <h3>Produtos</h3>
               <p id="selectedStoreText">Sem loja selecionada.</p>
             </div>
+            <span class="badge">Live</span>
           </div>
           <div id="shoppingList" class="shopping-list"></div>
         </section>
       </div>
-
     </main>
   </div>
 
@@ -128,12 +128,12 @@
       <a class="bottom-link" data-nav="history" href="history.html">Histórico</a>
     </div>
   </nav>
+
   <script src="shared.js"></script>
+  <script>
+    fillShell('Lista','Todos os produtos guardados.');
+    bindListFilters();
+    renderListPage();
+  </script>
 </body>
 </html>
-
-<script>
-  fillShell('Lista','Todos os produtos da lista partilhada.');
-  bindListFilters();
-  renderListPage();
-</script>

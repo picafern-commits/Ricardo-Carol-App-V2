@@ -2,23 +2,23 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <title>Adicionar - Ricardo & Carol</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <title>Adicionar - Só Nós</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Só Nós">
+  <meta name="theme-color" content="#070b14">
   <link rel="apple-touch-icon" href="icon-180.png">
 </head>
 <body data-page="add" data-requires-login="true">
-
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand-card">
-        <p class="eyebrow">APP RICARDO & CAROL</p>
-        <h1>Lista<br>de Compras</h1>
-        <p>Layout adaptado ao estilo da App Braga, com navegação mais profissional.</p>
-
+        <p class="eyebrow">SÓ NÓS</p>
+        <h1>Adicionar<br>Produto</h1>
+        <p>Guarda rapidamente o que precisam comprar.</p>
         <div class="user-chip">
           <div class="avatar" data-user-initial>U</div>
           <div>
@@ -43,18 +43,34 @@
     <main class="main">
       <header class="topbar">
         <div class="page-title">
-          <h2 data-page-title>Título</h2>
-          <p data-page-sub>Subtítulo</p>
+          <h2 data-page-title>Adicionar</h2>
+          <p data-page-sub>Adicionar novos produtos à lista.</p>
         </div>
         <div class="top-actions"></div>
       </header>
 
       <div class="grid">
+        <section class="hero-card">
+          <div>
+            <h3>Novo item</h3>
+            <p>Preenche os campos abaixo para guardar um novo produto. O visual e os botões foram alinhados com o login premium.</p>
+          </div>
+          <div class="panel" style="padding:16px">
+            <div class="panel-head">
+              <div>
+                <h3>Dica</h3>
+                <p>Quanto mais detalhe colocares, mais fácil fica usar a lista.</p>
+              </div>
+            </div>
+            <div class="badge">Rápido</div>
+          </div>
+        </section>
+
         <section class="panel">
           <div class="panel-head">
             <div>
-              <h3>Adicionar produto</h3>
-              <p>Formulário redesenhado com o visual da App Braga.</p>
+              <h3>Formulário</h3>
+              <p>Adiciona produto, loja, prioridade e notas.</p>
             </div>
             <span class="badge">Novo</span>
           </div>
@@ -101,7 +117,7 @@
             </div>
             <div class="field">
               <label for="notesInput">Notas</label>
-              <textarea id="notesInput" placeholder="Marca, observações, promoção, etc."></textarea>
+              <textarea id="notesInput" placeholder="Marca, promoção, detalhe importante..."></textarea>
             </div>
           </div>
 
@@ -110,12 +126,9 @@
             <a class="secondary-btn" href="list.html">Ver lista</a>
             <button class="danger-btn" onclick="clearAll()">Limpar tudo</button>
           </div>
-          <div id="formToast" class="info-strip hidden" style="margin-top:14px">Produto adicionado com sucesso.</div>
+          <div id="formToast" class="login-premium-note hidden" style="margin-top:14px">Produto adicionado com sucesso.</div>
         </section>
-
-        
       </div>
-
     </main>
   </div>
 
@@ -127,10 +140,10 @@
       <a class="bottom-link" data-nav="history" href="history.html">Histórico</a>
     </div>
   </nav>
+
   <script src="shared.js"></script>
+  <script>
+    fillShell('Adicionar','Adicionar novos produtos à lista.');
+  </script>
 </body>
 </html>
-
-<script>
-  fillShell('Adicionar','Regista novos produtos na lista.');
-</script>

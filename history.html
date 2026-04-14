@@ -2,23 +2,23 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <title>Histórico - Ricardo & Carol</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <title>Histórico - Só Nós</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Só Nós">
+  <meta name="theme-color" content="#070b14">
   <link rel="apple-touch-icon" href="icon-180.png">
 </head>
 <body data-page="history" data-requires-login="true">
-
   <div class="app-shell">
     <aside class="sidebar">
       <div class="brand-card">
-        <p class="eyebrow">APP RICARDO & CAROL</p>
-        <h1>Lista<br>de Compras</h1>
-        <p>Layout adaptado ao estilo da App Braga, com navegação mais profissional.</p>
-
+        <p class="eyebrow">SÓ NÓS</p>
+        <h1>Histórico<br>de Compras</h1>
+        <p>Revê tudo o que já foi marcado como comprado.</p>
         <div class="user-chip">
           <div class="avatar" data-user-initial>U</div>
           <div>
@@ -43,25 +43,40 @@
     <main class="main">
       <header class="topbar">
         <div class="page-title">
-          <h2 data-page-title>Título</h2>
-          <p data-page-sub>Subtítulo</p>
+          <h2 data-page-title>Histórico</h2>
+          <p data-page-sub>Registo das compras concluídas.</p>
         </div>
         <div class="top-actions"></div>
       </header>
 
       <div class="grid">
+        <section class="hero-card">
+          <div>
+            <h3>Compras concluídas</h3>
+            <p>Aqui tens o histórico organizado de tudo o que já foi comprado. Mantive o mesmo nível visual premium para a experiência ficar uniforme.</p>
+          </div>
+          <div class="panel" style="padding:16px">
+            <div class="panel-head">
+              <div>
+                <h3>Gestão</h3>
+                <p>Limpa o histórico quando precisares</p>
+              </div>
+            </div>
+            <button class="danger-btn" onclick="saveHistory([]); renderHistoryPage();">Apagar histórico</button>
+          </div>
+        </section>
+
         <section class="panel">
           <div class="panel-head">
             <div>
-              <h3>Histórico de compras</h3>
-              <p>Aqui aparecem os produtos marcados como comprados.</p>
+              <h3>Registo</h3>
+              <p>Produtos comprados ao longo do tempo.</p>
             </div>
-            <button class="danger-btn" onclick="saveHistory([]); renderHistoryPage();">Apagar histórico</button>
+            <span class="badge">Arquivo</span>
           </div>
           <div id="historyList" class="history-list"></div>
         </section>
       </div>
-
     </main>
   </div>
 
@@ -73,11 +88,11 @@
       <a class="bottom-link" data-nav="history" href="history.html">Histórico</a>
     </div>
   </nav>
+
   <script src="shared.js"></script>
+  <script>
+    fillShell('Histórico','Registo das compras concluídas.');
+    renderHistoryPage();
+  </script>
 </body>
 </html>
-
-<script>
-  fillShell('Histórico','Registo das compras concluídas.');
-  renderHistoryPage();
-</script>
