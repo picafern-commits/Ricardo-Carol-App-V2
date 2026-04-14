@@ -2,51 +2,56 @@
 <html lang="pt">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-  <title>Entrar - Ricardo & Carol</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+  <title>Entrar - Só Nós</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Só Nós">
+  <meta name="theme-color" content="#070b14">
   <link rel="apple-touch-icon" href="icon-180.png">
 </head>
-<body class="login-body">
-  <div class="login-wrap">
-    <section class="login-brand">
-      <div>
-        <div class="logo-badge">APP RICARDO & CAROL</div>
-        <h1 class="login-title">Só Nós ❤️</h1>
-        <p class="login-sub">A vossa lista privada.</p>
-        </div>
-    </section>
+<body class="login-premium-body">
+  <div class="login-premium-bg"></div>
+  <div class="login-premium-overlay"></div>
 
-    <section class="login-panel">
-      <div class="panel-top">
-        <div>
-          <div class="logo-badge">LOGIN</div>
-        </div>
-        
+  <main class="login-premium-shell">
+    <section class="login-premium-card">
+      <div class="login-premium-top">
+        <div class="premium-badge">SÓ NÓS</div>
       </div>
 
-      <div class="login-card">
-        <h2>Login</h2>
-        <p>Seleciona o utilizador para entrar na app.</p>
+      <div class="login-premium-content">
+        <div class="login-premium-copy">
+          <h1>Entrar</h1>
+          <p>A vossa app privada, com um visual mais premium, inspirado no estilo iOS e App Braga.</p>
+        </div>
 
-        <div class="user-grid">
-          <button class="user-btn" onclick="login('Ricardo')">
-            <div class="avatar">R</div>
-            <div><strong>Ricardo</strong><span>Perfil principal</span></div>
+        <div class="login-premium-users">
+          <button class="premium-user-btn ricardo" onclick="login('Ricardo')">
+            <span class="premium-avatar">R</span>
+            <span class="premium-user-text">
+              <strong>Ricardo</strong>
+              <small>Entrar no perfil</small>
+            </span>
           </button>
-          <button class="user-btn" onclick="login('Carol')">
-            <div class="avatar">C</div>
-            <div><strong>Carol</strong><span>Perfil principal</span></div>
-          </button>
-          </div>
 
-        
+          <button class="premium-user-btn carol" onclick="login('Carol')">
+            <span class="premium-avatar">C</span>
+            <span class="premium-user-text">
+              <strong>Carol</strong>
+              <small>Entrar no perfil</small>
+            </span>
+          </button>
+        </div>
+
+        <div class="login-premium-note">
+          No iPhone, abre no Safari e adiciona ao ecrã principal para ficar com aspeto de app real.
+        </div>
       </div>
     </section>
-  </div>
+  </main>
 
   <script src="shared.js"></script>
   <script>
