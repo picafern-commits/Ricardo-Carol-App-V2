@@ -35,27 +35,15 @@ function loadHistory(){
 function saveHistory(history){ localStorage.setItem(HISTORY_KEY, JSON.stringify(history)); }
 
 function seedItemsIfEmpty(){
-  const items = loadItems();
-  if(items.length) return;
-  const demo = [
-    {id:uid(),name:'Leite',qty:2,category:'Supermercado',store:'Continente',priority:'Alta',notes:'Sem lactose',done:false,createdAt:new Date().toISOString(),createdBy:'Ricardo'},
-    {id:uid(),name:'Pão',qty:1,category:'Padaria',store:'Pingo Doce',priority:'Normal',notes:'Integral',done:false,createdAt:new Date().toISOString(),createdBy:'Carol'},
-    {id:uid(),name:'Detergente',qty:1,category:'Casa',store:'Lidl',priority:'Baixa',notes:'',done:true,createdAt:new Date().toISOString(),createdBy:'Ricardo'}
-  ];
-  saveItems(demo);
+  return;
 }
 
 function applyTheme(){
-  const theme = localStorage.getItem(THEME_KEY) || 'dark';
-  document.body.classList.toggle('light', theme === 'light');
-  document.querySelectorAll('[data-theme-toggle]').forEach(btn => {
-    btn.textContent = theme === 'light' ? '☀️' : '🌙';
-  });
+  document.body.classList.remove('light');
+  document.querySelectorAll('[data-theme-toggle]').forEach(btn => btn.remove());
 }
 function toggleTheme(){
-  const current = localStorage.getItem(THEME_KEY) || 'dark';
-  localStorage.setItem(THEME_KEY, current === 'dark' ? 'light' : 'dark');
-  applyTheme();
+  document.body.classList.remove('light');
 }
 
 function initials(name){

@@ -203,3 +203,7 @@ body.light .bottom-nav{background:rgba(255,255,255,.86)}
   .hero-card h3{font-size:23px}
   .topbar{align-items:flex-start;flex-direction:column}
 }
+
+.login-card{max-width:520px;margin:0 auto}
+.user-grid{grid-template-columns:1fr 1fr}
+.login-panel{display:flex;flex-direction:column;justify-content:center}

@@ -33,7 +33,6 @@
       </nav>
 
       <div class="side-footer">
-        <button class="side-btn" data-theme-toggle>🌙</button>
         <button class="side-btn danger" data-logout>Sair</button>
       </div>
     </aside>
@@ -44,12 +43,26 @@
           <h2 data-page-title>Título</h2>
           <p data-page-sub>Subtítulo</p>
         </div>
-        <div class="top-actions">
-          <button class="icon-btn" data-theme-toggle>🌙</button>
-        </div>
+        <div class="top-actions"></div>
       </header>
 
       <div class="grid">
+        <section class="panel">
+            <div class="panel-head">
+              <div>
+                <h3>Perfil ativo</h3>
+                <p>Quem está a usar agora</p>
+              </div>
+            </div>
+            <div class="user-chip" style="margin-top:0">
+              <div class="avatar" data-user-initial>U</div>
+              <div>
+                <strong data-user-name>Utilizador</strong>
+                <div style="color:var(--muted);font-size:13px">Lista partilhada ativa</div>
+              </div>
+            </div>
+          </section>
+
         <section class="hero-card">
           <div>
             <h3>Dashboard da lista partilhada</h3>
@@ -72,48 +85,12 @@
           </div>
         </section>
 
-        <section class="split-grid">
-          <section class="panel">
-            <div class="panel-head">
-              <div>
-                <h3>Atalhos rápidos</h3>
-                <p>Navegação simples entre áreas</p>
-              </div>
-            </div>
-            <div class="quick-grid three">
-              <a class="secondary-btn" href="add.html">➕ Adicionar</a>
-              <a class="secondary-btn" href="list.html">🧺 Lista</a>
-              <a class="secondary-btn" href="history.html">📜 Histórico</a>
-            </div>
-          </section>
+        
 
-          <section class="panel">
-            <div class="panel-head">
-              <div>
-                <h3>Perfil ativo</h3>
-                <p>Quem está a usar agora</p>
-              </div>
-            </div>
-            <div class="user-chip" style="margin-top:0">
-              <div class="avatar" data-user-initial>U</div>
-              <div>
-                <strong data-user-name>Utilizador</strong>
-                <div style="color:var(--muted);font-size:13px">Lista partilhada ativa</div>
-              </div>
-            </div>
-          </section>
+          
         </section>
 
-        <section class="panel">
-          <div class="panel-head">
-            <div>
-              <h3>Itens recentes</h3>
-              <p>Últimos produtos adicionados</p>
-            </div>
-            <a class="badge" href="list.html">Abrir lista</a>
-          </div>
-          <div id="recentList" class="shopping-list"></div>
-        </section>
+        
       </div>
 
     </main>
@@ -134,5 +111,4 @@
 <script>
   fillShell('Início','Visão geral da tua lista partilhada.');
   renderStats('statsGrid');
-  renderRecentList('recentList');
 </script>
